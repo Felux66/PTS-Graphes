@@ -9,4 +9,4 @@ COLORS_ORDER = ["indianred", "lightseagreen", "royalblue", "darkolivegreen", "pu
 NONE_COLOR = (50,50,50)
 
 POINTS_DISTANCE = 100
-POINTS_RADIUS = 15
+POINTS_RADIUS = 35

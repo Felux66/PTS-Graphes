@@ -15,8 +15,8 @@ def graph_is_oriented(graph):
     for vertex, neighbors in graph.items():
         for neighbor in neighbors:
             if vertex not in graph[neighbor]:
-                return False
-    return True
+                return True
+    return False
 
 def generate_random_graph(n, minNei=1, maxNei=None):
     assert n >= 2, "n has to be at least 2"

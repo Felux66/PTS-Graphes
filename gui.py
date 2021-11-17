@@ -12,7 +12,14 @@ class GraphGUI():
         
         self.graph = self.set_graph()
 
-    def coloring(self, current=None, visited=[]):
+    def reset_colors(self):
+        for v in self.vertices:
+            v.color = NONE_COLOR
+
+    def coloring(self, current=None, visited=None):
+        if visited == None:
+            visited = []
+            
         if len(visited) == len(self.vertices):
             return
 
@@ -20,7 +27,6 @@ class GraphGUI():
             for color in COLORS_ORDER:
                 if COLORS[color] not in [neighbor.color for neighbor in self.graph[vertex]]:
                     current.color = COLORS[color]
-                    print(f"{vertex} has been colored in {color}")
                     break
 
         if current == None:
@@ -97,12 +103,21 @@ class MainWindow():
         self.width, self.height = WIDTH, HEIGHT
         self.win = pygame.display.set_mode((self.width,self.height))
 
-        self.graph = GraphGUI.generate(graph, self.set_points(graph))
-        self.graph.coloring()
+        self.initialGraph = graph
+
+        self.graph = self.init_graph()
 
         self.run()
+    
+    def init_graph(self):
+        graph = GraphGUI.generate(self.initialGraph, self.set_points())
+        graph.coloring()
 
-    def set_points(self, graph, radius=POINTS_DISTANCE):
+        return graph
+
+    def set_points(self, radius=POINTS_DISTANCE):
+        graph = self.initialGraph
+
         w = self.width
         h = self.height
 
@@ -139,6 +154,18 @@ class MainWindow():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     exit()
+                
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_r:
+                        self.graph = self.init_graph()
+                    if event.key == pygame.K_c:
+                        self.graph.reset_colors()
+                        self.graph.coloring()
+                    if event.key == pygame.K_p:
+                        for i in self.initialGraph:
+                            print(f"{i}: {self.initialGraph[i]}")
+                    if event.key == pygame.K_KP_0:
+                        self.graph.reset_colors()
 
             for edge in self.graph.edges:
                 pygame.draw.line(self.win, (255,255,255), edge[0].pos, edge[1].pos, 2)
@@ -157,4 +184,4 @@ class MainWindow():
 if __name__ == '__main__':
     pygame.init()
 
-    MainWindow(generate_random_graph(50, maxNei=15))
+    MainWindow(generate_random_graph(10, maxNei=4))
