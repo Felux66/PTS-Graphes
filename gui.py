@@ -4,6 +4,44 @@ import random
 from math import hypot
 from consts import *
 
+class ColoringAlgo:
+
+    def cosine(graph):
+        pass
+
+    def color(graph, current=None, visited=None):
+        if visited == None:
+            visited = []
+            
+        if len(visited) == len(graph.vertices):
+            return
+
+        def set_color(vertex):
+            for color in COLORS_ORDER:
+                if COLORS[color] not in [neighbor.color for neighbor in graph.graph[vertex]]:
+                    current.color = COLORS[color]
+                    break
+
+        if current == None:
+            current = random.choice(list(set(graph.vertices)-set(visited)))
+        
+        set_color(current)
+
+        visited.append(current)
+
+        hasNone = False
+        for neighbor in graph.graph[current]:
+            if neighbor.color == NONE_COLOR:
+                hasNone = True
+                ColoringAlgo.color(graph,neighbor,visited)
+        
+        if not hasNone:
+            ColoringAlgo.color(graph,None,visited)
+
+##################################
+##################################
+##################################
+
 class GraphGUI():
     
     def __init__(self, vertices, edges):
@@ -15,35 +53,6 @@ class GraphGUI():
     def reset_colors(self):
         for v in self.vertices:
             v.color = NONE_COLOR
-
-    def coloring(self, current=None, visited=None):
-        if visited == None:
-            visited = []
-            
-        if len(visited) == len(self.vertices):
-            return
-
-        def set_color(vertex):
-            for color in COLORS_ORDER:
-                if COLORS[color] not in [neighbor.color for neighbor in self.graph[vertex]]:
-                    current.color = COLORS[color]
-                    break
-
-        if current == None:
-            current = random.choice(list(set(self.vertices)-set(visited)))
-        
-        set_color(current)
-
-        visited.append(current)
-
-        hasNone = False
-        for neighbor in self.graph[current]:
-            if neighbor.color == NONE_COLOR:
-                hasNone = True
-                self.coloring(neighbor,visited)
-        
-        if not hasNone:
-            self.coloring(None,visited)
 
     def set_graph(self):
         graph = {vertex: [] for edge in self.edges for vertex in edge }
@@ -66,6 +75,9 @@ class GraphGUI():
                 edges.add(edge)
         
         return GraphGUI(vertices, edges)
+
+
+##################################
 
 class VertexGUI():
     
@@ -97,6 +109,11 @@ class VertexGUI():
     def __repr__(self):
         return str(self)
 
+
+##################################
+##################################
+##################################
+
 class MainWindow():
 
     def __init__(self, graph):
@@ -111,7 +128,7 @@ class MainWindow():
     
     def init_graph(self):
         graph = GraphGUI.generate(self.initialGraph, self.set_points())
-        graph.coloring()
+        ColoringAlgo.color(graph)
 
         return graph
 
@@ -160,7 +177,9 @@ class MainWindow():
                         self.graph = self.init_graph()
                     if event.key == pygame.K_c:
                         self.graph.reset_colors()
-                        self.graph.coloring()
+
+                        ColoringAlgo.color(self.graph)
+                        
                     if event.key == pygame.K_p:
                         for i in self.initialGraph:
                             print(f"{i}: {self.initialGraph[i]}")

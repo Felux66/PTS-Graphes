@@ -1,5 +1,4 @@
 import random
-import itertools
 
 def graph_is_valid(graph):
     assert isinstance(graph, dict), "graph sould be a dict"
@@ -64,6 +63,20 @@ if __name__ == '__main__':
         'F': ['B', 'E'],
         'G': ['C']    
     }
+
+    """
+    
+    [    a b c d
+       a [0,0,1,0],
+       b [0,0,0,0],
+       c [1,0,0,0],
+       d [1,0,0,0],
+    ]
+    
+    vertices: [1,2,3,4]
+    edge: [(1,2), (2,1), (2,3), (3,2)]
+
+    """
 
     print(graph_is_valid(graph))
     print(graph_is_oriented(graph))
