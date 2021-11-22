@@ -1,11 +1,26 @@
 import random
+from options import Options
 
 def graph_is_valid(graph):
     assert isinstance(graph, dict), "graph sould be a dict"
 
+    def dfs(graph, current=None, visited=[]):
+        if current == None:
+            current = random.choice(list(graph.keys()))
+
+        visited.append(current)
+        for neighbor in graph[current]:
+            if neighbor not in visited:
+                visited = dfs(graph, neighbor, visited)
+        
+        return visited
+
+    if any(vertex not in dfs(graph) for vertex in graph.keys()):
+        return False
+
     # Get all neighbors to avoid a missing vertex
     allNeighbors = set(vertex for neighbors in graph.values() for vertex in neighbors)    
-    return all(neighbor in graph.keys() for neighbor in allNeighbors)
+    return all(neighbor in graph.keys() for neighbor in allNeighbors) and all(len(neighbors)>0 for neighbors in graph.values())
 
 def graph_is_oriented(graph):
     assert isinstance(graph, dict), "graph sould be a dict"
@@ -17,7 +32,7 @@ def graph_is_oriented(graph):
                 return True
     return False
 
-def generate_random_graph(n, minNei=1, maxNei=None):
+def generate_random_graph(n=Options.N_VERTICES_RANDGRAPH, minNei=Options.NEIGHBORS_INTERVAL[0], maxNei=Options.NEIGHBORS_INTERVAL[1]):
     assert n >= 2, "n has to be at least 2"
     
     if maxNei == None:

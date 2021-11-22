@@ -1,7 +1,6 @@
 #Flix
 #Marianne
 
-from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import *
 import pygame
@@ -11,70 +10,10 @@ from graph import generate_random_graph
 import random
 from math import hypot
 from consts import *
-from gui import GraphGUI, VertexGUI, ColoringAlgo
-
-class Color(QtWidgets.QWidget):
-
-    def __init__(self, color):
-        super(Color, self).__init__()
-        self.setAutoFillBackground(True)
-
-        palette = self.palette()
-        palette.setColor(QtGui.QPalette.Window, QtGui.QColor(color))
-        self.setPalette(palette)
-
-class ImageWidget(QtWidgets.QWidget):   
-    def __init__(self,surface,parent=None):
-        super(ImageWidget,self).__init__(parent)
-        self.surface = surface
-
-    def paintEvent(self,event):
-        
-        self.surface.fill(NONE_COLOR)
-        
-        for edge in self.parent().graph.edges:
-            pygame.draw.line(self.surface, (255,255,255), edge[0].pos, edge[1].pos, 2)
-
-        for vertex in self.parent().graph.vertices:
-            pygame.draw.circle(self.surface, vertex.border, vertex.pos, vertex.radius, 0)
-            pygame.draw.circle(self.surface, vertex.color, vertex.pos, vertex.radius-2, 0)
-
-            font = pygame.font.Font(None, vertex.radius)
-            text = font.render(str(vertex), True, (255,255,255))
-            text_rect = text.get_rect(center=vertex.pos)
-            self.surface.blit(text, text_rect)
-        
-        w=self.surface.get_width()
-        h=self.surface.get_height()
-        data=self.surface.get_buffer().raw
-        self.image=QtGui.QImage(data,w,h,QtGui.QImage.Format_RGB32)
-
-        my_paint=QtGui.QPainter()  
-        my_paint.begin(self)
-        my_paint.drawImage(0,0,self.image)
-        my_paint.end()
-
-class FormWidget(QtWidgets.QWidget):   
-    def __init__(self,parent=None):
-        super(FormWidget,self).__init__(parent)
-    
-        button1 = QPushButton("Redraw")
-        button1.clicked.connect(self.redrawGraph)
-
-        combo = QComboBox(self)
-
-        for algo in ColoringAlgo.algos:
-            combo.addItem(algo)
-
-        layout = QVBoxLayout()
-
-        layout.addWidget(button1)
-        self.setLayout(layout)
-        self.show()
-
-    def redrawGraph(self):
-        self.parent().graph = self.parent().init_graph()
-        self.parent().pygameWidget.repaint()
+from gui import GraphGUI, VertexGUI
+from options import Options
+from ImageWidget import ImageWidget
+from FormWidget import FormWidget
 
 class MainWidget(QWidget):
 
@@ -82,7 +21,7 @@ class MainWidget(QWidget):
         super(MainWidget,self).__init__(parent)
         self.surface = surface
 
-        self.initialGraph = generate_random_graph(10, maxNei=4)
+        self.initialGraph = generate_random_graph()
         self.graph = self.init_graph()
         
         self.pygameWidget = ImageWidget(self.surface, self)
@@ -100,11 +39,10 @@ class MainWidget(QWidget):
         
     def init_graph(self):
         graph = GraphGUI.generate(self.initialGraph, self.set_points())
-        ColoringAlgo.color(graph)
 
         return graph
 
-    def set_points(self, radius=POINTS_DISTANCE):
+    def set_points(self, radius=Options.POINTS_DISTANCE):
         graph = self.initialGraph
 
         w = self.surface.get_width()
@@ -140,8 +78,19 @@ class MainWindow(QtWidgets.QMainWindow):
         
         self.surface = surface
         self.mainWidget = MainWidget(surface, self)
+        self.pos
 
         self.setCentralWidget(self.mainWidget)
+
+    def location_on_the_screen(self):
+        ag = QDesktopWidget().availableGeometry()
+        sg = QDesktopWidget().screenGeometry()
+
+        widget = self.geometry()
+        x = ag.width() - widget.width() * 3.5
+        y = 2.7 * ag.height() - sg.height() - widget.height()
+        self.move(x, y)
+
 
 pygame.init()
 my_surface=pygame.Surface((WIDTH, HEIGHT))
@@ -149,5 +98,6 @@ my_surface.fill((200,0,0))
  
 app=QtWidgets.QApplication(sys.argv)
 my_window=MainWindow(my_surface)
+my_window.location_on_the_screen()
 my_window.show()
 app.exec_()
