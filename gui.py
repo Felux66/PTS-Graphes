@@ -38,6 +38,11 @@ class ColoringAlgo:
         if not hasNone:
             ColoringAlgo.color(graph,None,visited)
 
+    algos = {
+        "COSINE": cosine,
+        "Color": color,
+    }
+
 ##################################
 ##################################
 ##################################
