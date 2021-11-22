@@ -19,8 +19,6 @@ class ColoringAlgo:
 
         def set_color(vertex):
             for color in COLORS_ORDER:
-                print(color)
-                print(graph.graph, vertex)
                 if COLORS[color] not in [neighbor.color for neighbor in graph.graph[vertex]]:
                     current.color = COLORS[color]
                     break
@@ -42,8 +40,8 @@ class ColoringAlgo:
             ColoringAlgo.color(graph,None,visited)
 
     algos = {
+        "COLOR": color,
         "COSINE": cosine,
-        "Color": color,
     }
 
 ##################################
@@ -63,7 +61,7 @@ class GraphGUI():
             v.color = NONE_COLOR
 
     def set_graph(self):
-        graph = {vertex: [] for edge in self.edges for vertex in edge }
+        graph = {vertex: [] for vertex in self.vertices}
         
         for edge in self.edges:
             graph[edge[0]].append(edge[1])

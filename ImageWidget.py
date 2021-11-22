@@ -12,8 +12,10 @@ class ImageWidget(QtWidgets.QWidget):
         super(ImageWidget,self).__init__(parent)
         self.surface = surface
 
+        self.setFixedSize(surface.get_width(), surface.get_height())
+
         self.selected = None
-        self.action = "delEdge"
+        self.action = None
         self.actionParams = []
 
     def paintEvent(self, event):
@@ -33,7 +35,7 @@ class ImageWidget(QtWidgets.QWidget):
             pygame.draw.circle(self.surface, bordercol, vertex.pos, Options.POINTS_RADIUS, 0)
             pygame.draw.circle(self.surface, vertex.color, vertex.pos, Options.POINTS_RADIUS-2, 0)
 
-            font = pygame.font.Font(None, Options.POINTS_RADIUS)
+            font = pygame.font.Font(None, int(Options.POINTS_RADIUS*1.5))
             text = font.render(str(vertex), True, (255,255,255))
             text_rect = text.get_rect(center=vertex.pos)
             self.surface.blit(text, text_rect)
@@ -67,6 +69,7 @@ class ImageWidget(QtWidgets.QWidget):
             newVertex = VertexGUI(x, y, newName)
             
             self.parent().graph.vertices.append(newVertex)
+            self.parent().graph.graph = self.parent().graph.set_graph()
 
             self.action = None
 
@@ -84,6 +87,7 @@ class ImageWidget(QtWidgets.QWidget):
             
             if selVertex == None:
                 self.action = None
+                self.actionParams = []
             elif len(self.actionParams) == 0:
                 self.actionParams.append(selVertex)
             elif len(self.actionParams) == 1:
@@ -91,6 +95,9 @@ class ImageWidget(QtWidgets.QWidget):
                 v2 = selVertex
                 edge = tuple(sorted([v1, v2]))
                 self.parent().graph.edges.add(edge)
+                
+                self.parent().graph.graph = self.parent().graph.set_graph()
+
                 self.action = None
                 self.actionParams = []
 
@@ -118,6 +125,7 @@ class ImageWidget(QtWidgets.QWidget):
 
             for edge in toRem:
                 self.parent().graph.edges.remove(edge)
+            self.parent().graph.graph = self.parent().graph.set_graph()
 
             self.action = None
 
@@ -137,6 +145,7 @@ class ImageWidget(QtWidgets.QWidget):
             
             if selVertex == None:
                 self.action = None
+                self.actionParams = []
             elif len(self.actionParams) == 0:
                 self.actionParams.append(selVertex)
             elif len(self.actionParams) == 1:
@@ -145,6 +154,8 @@ class ImageWidget(QtWidgets.QWidget):
                 edge = tuple(sorted([v1, v2]))
                 if edge in self.parent().graph.edges:
                     self.parent().graph.edges.remove(edge)
+                self.parent().graph.graph = self.parent().graph.set_graph()
+
                 self.action = None
                 self.actionParams = []
 

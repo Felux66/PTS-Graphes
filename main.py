@@ -3,6 +3,7 @@
 
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt
 import pygame
 import sys
 
@@ -14,6 +15,7 @@ from gui import GraphGUI, VertexGUI
 from options import Options
 from ImageWidget import ImageWidget
 from FormWidget import FormWidget
+from ActionWidget import ActionWidget
 
 class MainWidget(QWidget):
 
@@ -26,15 +28,15 @@ class MainWidget(QWidget):
         
         self.pygameWidget = ImageWidget(self.surface, self)
         self.formWidget = FormWidget(self)
+        self.actionWidget = ActionWidget(self)
+
+        #######################################
 
         layout = QGridLayout()        
-        layout.addWidget(self.pygameWidget, 0, 0, 1, 5)
-        layout.addWidget(self.formWidget, 0, 5, 1, 2)       
+        layout.addWidget(self.pygameWidget, 0, 0, 1, 1)
+        layout.addWidget(self.formWidget, 0, 1, 2, 1, Qt.AlignTop)
+        layout.addWidget(self.actionWidget, 1, 0)       
 
-        self.w = int(surface.get_width() + (surface.get_width()*2) / 5)
-        self.h = surface.get_height()
-
-        self.setFixedSize(self.w, self.h)
         self.setLayout(layout)
         
     def init_graph(self):
@@ -82,15 +84,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.setCentralWidget(self.mainWidget)
 
-    def location_on_the_screen(self):
-        ag = QDesktopWidget().availableGeometry()
-        sg = QDesktopWidget().screenGeometry()
-
-        widget = self.geometry()
-        x = ag.width() - widget.width() * 3.5
-        y = 2.7 * ag.height() - sg.height() - widget.height()
-        self.move(x, y)
-
 
 pygame.init()
 my_surface=pygame.Surface((WIDTH, HEIGHT))
@@ -98,6 +91,5 @@ my_surface.fill((200,0,0))
  
 app=QtWidgets.QApplication(sys.argv)
 my_window=MainWindow(my_surface)
-my_window.location_on_the_screen()
 my_window.show()
 app.exec_()

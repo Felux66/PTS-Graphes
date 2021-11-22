@@ -18,8 +18,7 @@ class FormWidget(QtWidgets.QWidget):
 
             ########
 
-        radiusEdit = QSpinBox()
-        radiusEdit.setAlignment(QtCore.Qt.AlignRight)
+        radiusEdit = QSlider(QtCore.Qt.Horizontal)
         radiusEdit.setValue(Options.POINTS_RADIUS)
         radiusEdit.setMinimum(10)
         radiusEdit.setMaximum(60)
@@ -33,8 +32,7 @@ class FormWidget(QtWidgets.QWidget):
 
             ########
 
-        distanceEdit = QSpinBox()
-        distanceEdit.setAlignment(QtCore.Qt.AlignRight)
+        distanceEdit = QSlider(QtCore.Qt.Horizontal)
         distanceEdit.setValue(Options.POINTS_DISTANCE)
         distanceEdit.setMinimum(10)
         distanceEdit.setMaximum(200)
@@ -45,8 +43,6 @@ class FormWidget(QtWidgets.QWidget):
                 Options.POINTS_DISTANCE = DEFAULT_POINTS_DISTANCE        
         distanceEdit.valueChanged.connect(changeDistance)
 
-            ########
-
         optionsLayout = QFormLayout()
         optionsLayout.addRow("Vertex radius", radiusEdit)
         optionsLayout.addRow("Vertex distance", distanceEdit)
@@ -54,59 +50,54 @@ class FormWidget(QtWidgets.QWidget):
 
         #######################################
 
-        self.graphGroup = QGroupBox("Graph")
+        self.graphGroup = QGroupBox("Random graph")
 
             ########
-
-        nverticesLabel = QLabel("Vertices amount: ")
 
         nverticesEdit = QSpinBox()
         nverticesEdit.setAlignment(QtCore.Qt.AlignRight)
         nverticesEdit.setValue(Options.N_VERTICES_RANDGRAPH)
         nverticesEdit.setMinimum(4)
         nverticesEdit.setMaximum(50)
+
+        minEdgeEdit = QSpinBox()
+        minEdgeEdit.setAlignment(QtCore.Qt.AlignRight)
+        minEdgeEdit.setValue(Options.NEIGHBORS_INTERVAL[0])
+        minEdgeEdit.setMinimum(Options.NEIGHBORS_INTERVAL[0])
+        minEdgeEdit.setMaximum(Options.NEIGHBORS_INTERVAL[1])
+
+        maxEdgeEdit = QSpinBox()
+        maxEdgeEdit.setAlignment(QtCore.Qt.AlignRight)
+        maxEdgeEdit.setValue(Options.NEIGHBORS_INTERVAL[1])
+        maxEdgeEdit.setMinimum(Options.NEIGHBORS_INTERVAL[0])
+        maxEdgeEdit.setMaximum(Options.NEIGHBORS_INTERVAL[1])
+
         def changeDistance():
             try:
                 Options.N_VERTICES_RANDGRAPH = int(nverticesEdit.value())
             except:
-                Options.N_VERTICES_RANDGRAPH = DEFAULT_N_VERTICES_RANDGRAPH        
-        nverticesEdit.valueChanged.connect(changeDistance)
-
-            ########
-
-        def addVertexGraph():
-            self.parent().pygameWidget.action = "addVertex"
-            self.parent().pygameWidget.repaint()
-
-        buttonAddVertexGraph = QPushButton("Add vertex")
-        buttonAddVertexGraph.clicked.connect(addVertexGraph)
-
-            ########
-
-        def addEdgeGraph():
-            self.parent().pygameWidget.action = "addEdge"
-            self.parent().pygameWidget.repaint()
-
-        buttonAddEdgeGraph = QPushButton("Add edge")
-        buttonAddEdgeGraph.clicked.connect(addEdgeGraph)
-
-            ########
-
-        def delVertexGraph():
-            self.parent().pygameWidget.action = "delVertex"
-            self.parent().pygameWidget.repaint()
-
-        buttonDelVertexGraph = QPushButton("Delete vertex")
-        buttonDelVertexGraph.clicked.connect(delVertexGraph)
-
-            ########
-
-        def delEdgeGraph():
-            self.parent().pygameWidget.action = "delEdge"
-            self.parent().pygameWidget.repaint()
-
-        buttonDelEdgeGraph = QPushButton("Delete edge")
-        buttonDelEdgeGraph.clicked.connect(delEdgeGraph)
+                Options.N_VERTICES_RANDGRAPH = DEFAULT_N_VERTICES_RANDGRAPH   
+            maxEdgeEdit.setMaximum(Options.N_VERTICES_RANDGRAPH)   
+            if maxEdgeEdit.value() >= nverticesEdit.value():
+                maxEdgeEdit.setValue(nverticesEdit.value()-1) 
+        
+        def changeMinEdge():
+            try:
+                Options.NEIGHBORS_INTERVAL[0] = int(minEdgeEdit.value())
+            except:
+                Options.NEIGHBORS_INTERVAL[0] = DEFAULT_NEIGHBORS_INTERVAL[0]
+            maxEdgeEdit.setMinimum(Options.NEIGHBORS_INTERVAL[0])
+        
+        def changeMaxEdge():
+            try:
+                Options.NEIGHBORS_INTERVAL[1] = int(maxEdgeEdit.value())
+            except:
+                Options.NEIGHBORS_INTERVAL[1] = DEFAULT_NEIGHBORS_INTERVAL[1]
+            minEdgeEdit.setMaximum(Options.NEIGHBORS_INTERVAL[1])     
+        
+        nverticesEdit.valueChanged.connect(changeDistance)   
+        minEdgeEdit.valueChanged.connect(changeMinEdge)   
+        maxEdgeEdit.valueChanged.connect(changeMaxEdge)
 
             ########
 
@@ -115,20 +106,18 @@ class FormWidget(QtWidgets.QWidget):
             self.parent().graph = self.parent().init_graph()
             self.parent().pygameWidget.repaint()
 
-        buttonRandomGraph = QPushButton("Generate random graph")
+        buttonRandomGraph = QPushButton("New graph")
         buttonRandomGraph.clicked.connect(randomGraph)
 
             ########
             
-        graphLayout = QGridLayout()
-        graphLayout.addWidget(nverticesLabel, 0, 0)
-        graphLayout.addWidget(nverticesEdit, 0, 1)
-        graphLayout.addWidget(buttonAddVertexGraph, 1, 0)
-        graphLayout.addWidget(buttonAddEdgeGraph, 1, 1)
-        graphLayout.addWidget(buttonDelVertexGraph, 2, 0)
-        graphLayout.addWidget(buttonDelEdgeGraph, 2, 1)
-        graphLayout.addWidget(buttonRandomGraph, 3, 1)
+        graphLayout = QFormLayout()
+        graphLayout.addRow("Vertices amount: ", nverticesEdit)
+        graphLayout.addRow("Min edge amount: ", minEdgeEdit)
+        graphLayout.addRow("Max edge amount: ", maxEdgeEdit)
+        graphLayout.addWidget(buttonRandomGraph)
         self.graphGroup.setLayout(graphLayout)
+        self.graphGroup.setFixedSize(self.graphGroup.sizeHint())
 
         #######################################
 
@@ -145,19 +134,17 @@ class FormWidget(QtWidgets.QWidget):
         for algo in ColoringAlgo.algos:
             self.comboAlgos.addItem(algo)
 
-        def recolorGraph():
-            graphGui = self.parent().graph
-            
-            graph = {vertex.name: [] for vertex in self.parent().graph.vertices}
-            for edge in self.parent().graph.edges:
-                graph[edge[0]].append(edge[1])
-                graph[edge[1]].append(edge[0])
-            
-            if not (graph_is_valid(graph) and not graph_is_oriented(graph)):
-                return
+        self.comboWidget = QWidget()
+        fLay = QFormLayout()
+        fLay.addRow("Add: ", self.comboAlgos)
+        self.comboWidget.setLayout(fLay)
 
-            print(self.parent().graph)
-            print(graph)
+        def recolorGraph():            
+            graph = self.parent().graph.graph
+
+            if not (graph_is_valid(graph) and not graph_is_oriented(graph)):
+                print("Not valid")
+                return
 
             self.parent().graph.reset_colors()
             ColoringAlgo.algos[self.comboAlgos.currentText()](self.parent().graph)
@@ -171,12 +158,13 @@ class FormWidget(QtWidgets.QWidget):
 
         glay = QGridLayout()
 
-        glay.addWidget(self.optionsGroup, 0, 0, 1, 5)
-        glay.addWidget(self.graphGroup, 0, 5, 1, 5)
-        glay.addWidget(QLabel("Algo: "), 1, 0)
-        glay.addWidget(self.comboAlgos, 1, 1, 1, 8)
-        glay.addWidget(self.buttonColor, 1, 9)
-        glay.addWidget(self.buttonRedraw, 2, 9)
+        glay.addWidget(self.optionsGroup, 0, 0, 1, 4)
+
+        glay.addWidget(self.comboWidget, 1, 0, 1, 3)
+        glay.addWidget(self.buttonColor, 1, 3)
+        glay.addWidget(self.buttonRedraw, 2, 3)
+        
+        glay.addWidget(self.graphGroup, 3, 0, 1, 4)
         
         self.setLayout(glay)
         self.show()
