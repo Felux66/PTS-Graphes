@@ -1,10 +1,13 @@
 from matplotlib import colors as mcolors
+from random import shuffle
 
 WIDTH, HEIGHT = 1000, 600
 
 COLORS = dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS)
 
-COLORS_ORDER = ["indianred", "lightseagreen", "royalblue", "darkolivegreen", "purple", "orange", "goldenrod", "indigo", "moccasin", "sandybrown"]
+COLORS_ORDER = ["midnightblue", "orchid", "indianred", "lightseagreen", "royalblue", "darkolivegreen", "purple", "orange", "goldenrod", "moccasin", "sandybrown", ]
+shuffle(COLORS_ORDER)
+print(COLORS_ORDER)
 
 NONE_COLOR = (50,50,50)
 

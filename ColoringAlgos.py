@@ -107,8 +107,8 @@ class ColoringAlgos:
 
         def set_color(vertex):
             for color in COLORS_ORDER:
-                if COLORS[color] not in [neighbor.color for neighbor in graph.graph[vertex]]:
-                    current.color = COLORS[color]
+                if color not in [neighbor.color for neighbor in graph.graph[vertex]]:
+                    current.color = color
                     break
 
         if current == None:
