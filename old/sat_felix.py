@@ -1,5 +1,6 @@
 from pysat.solvers import Minisat22
 import graph
+from consts import *
 
 #fonction qui a un sommet e et à une couleur c associe un nombre
 def encode(e,c,x,y):
@@ -19,7 +20,7 @@ def decode(e,c,n):
 
 def global_sat(graphe):
 
-    c = ['red','blue','green','yellow','orange','purple','pink','white','black','brown','cyan']
+    c = COLORS_ORDER # ['red','blue','green','yellow','orange','purple','pink','white','black','brown','cyan']
     e=[]
     for s in graphe.keys():
         e.append(s)
