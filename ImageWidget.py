@@ -1,10 +1,10 @@
-from PyQt5 import QtGui
+from PyQt5 import QtCore, QtGui
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import *
 import pygame
 
 from consts import *
-from gui import VertexGUI
+from Gui import VertexGUI
 from options import Options
 
 class ImageWidget(QtWidgets.QWidget):   
@@ -17,6 +17,7 @@ class ImageWidget(QtWidgets.QWidget):
         self.selected = None
         self.action = None
         self.actionParams = []
+        self.actionStep = 0
 
     def paintEvent(self, event):
         
@@ -51,6 +52,8 @@ class ImageWidget(QtWidgets.QWidget):
         my_paint.end()
 
     def mousePressEvent(self, QMouseEvent):
+
+        modifiers = QApplication.keyboardModifiers()
         if self.action == None:
             pos = QMouseEvent.pos()
             x, y = pos.x(), pos.y() 
@@ -65,17 +68,24 @@ class ImageWidget(QtWidgets.QWidget):
             pos = QMouseEvent.pos()
             x, y = pos.x(), pos.y() 
             
-            newName = str(max([int(v.name) for v in self.parent().graph.vertices])+1)
+            newName = "0" if len(self.parent().graph.vertices)==0 else str(max([int(v.name) for v in self.parent().graph.vertices])+1)
             newVertex = VertexGUI(x, y, newName)
             
             self.parent().graph.vertices.append(newVertex)
             self.parent().graph.graph = self.parent().graph.set_graph()
 
-            self.action = None
+            modifiers = QApplication.keyboardModifiers()
+            if not bool(modifiers == QtCore.Qt.ControlModifier):
+                self.action = None
+                self.actionParams = []
 
             self.repaint()
             
         elif self.action == "addEdge":
+            if len(self.parent().graph.vertices)<2:
+                self.action = None
+                return 
+
             pos = QMouseEvent.pos()
             x, y = pos.x(), pos.y() 
             
@@ -88,18 +98,41 @@ class ImageWidget(QtWidgets.QWidget):
             if selVertex == None:
                 self.action = None
                 self.actionParams = []
-            elif len(self.actionParams) == 0:
+            elif self.actionStep == 0:
                 self.actionParams.append(selVertex)
-            elif len(self.actionParams) == 1:
-                v1 = self.actionParams[0]
-                v2 = selVertex
-                edge = tuple(sorted([v1, v2]))
-                self.parent().graph.edges.add(edge)
+                self.actionStep = 1
+
+                if bool(modifiers == QtCore.Qt.ControlModifier):
+                    self.actionStep = 0
+
+                elif bool(modifiers == QtCore.Qt.ShiftModifier):
+                    self.actionStep = 0
+                    for v1 in self.actionParams:
+                        for v2 in self.actionParams:
+                            if v1 == v2:
+                                continue
+
+                            edge = tuple(sorted([v1, v2]))
+                            self.parent().graph.edges.add(edge)
+                    self.parent().graph.graph = self.parent().graph.set_graph()
+
+                
+            elif self.actionStep == 1:
+                for v1 in self.actionParams:
+                    v2 = selVertex
+
+                    if v1 == v2:
+                        continue
+
+                    edge = tuple(sorted([v1, v2]))
+                    self.parent().graph.edges.add(edge)
                 
                 self.parent().graph.graph = self.parent().graph.set_graph()
 
-                self.action = None
-                self.actionParams = []
+                if not bool(modifiers == QtCore.Qt.ControlModifier):
+                    self.action = None
+                    self.actionParams = []
+                    self.actionStep = 0
 
             self.repaint()
 
@@ -127,9 +160,9 @@ class ImageWidget(QtWidgets.QWidget):
                 self.parent().graph.edges.remove(edge)
             self.parent().graph.graph = self.parent().graph.set_graph()
 
-            self.action = None
-
-            print(self.parent().graph)
+            if not bool(modifiers == QtCore.Qt.ControlModifier):
+                self.action = None
+                self.actionParams = []
 
             self.repaint()
             
@@ -146,18 +179,25 @@ class ImageWidget(QtWidgets.QWidget):
             if selVertex == None:
                 self.action = None
                 self.actionParams = []
-            elif len(self.actionParams) == 0:
+
+            elif self.actionStep == 0:
                 self.actionParams.append(selVertex)
-            elif len(self.actionParams) == 1:
-                v1 = self.actionParams[0]
-                v2 = selVertex
-                edge = tuple(sorted([v1, v2]))
-                if edge in self.parent().graph.edges:
-                    self.parent().graph.edges.remove(edge)
+                if not bool(modifiers == QtCore.Qt.ControlModifier):
+                    self.actionStep = 1
+                    
+            elif self.actionStep == 1:
+                for v1 in self.actionParams:
+                    v2 = selVertex
+                    edge = tuple(sorted([v1, v2]))
+                    if edge in self.parent().graph.edges:
+                        self.parent().graph.edges.remove(edge)
+                
                 self.parent().graph.graph = self.parent().graph.set_graph()
 
-                self.action = None
-                self.actionParams = []
+                modifiers = QApplication.keyboardModifiers()
+                if not bool(modifiers == QtCore.Qt.ControlModifier):
+                    self.action = None
+                    self.actionParams = []
 
             self.repaint()
 

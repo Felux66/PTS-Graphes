@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import *
 import pygame
 
 from consts import *
-from gui import VertexGUI
+from Gui import VertexGUI
 from options import Options
 
 class ActionWidget(QtWidgets.QWidget):   
@@ -13,6 +13,8 @@ class ActionWidget(QtWidgets.QWidget):
 
         def addVertexGraph():
             self.parent().pygameWidget.action = "addVertex"
+            self.parent().pygameWidget.actionParams = []
+            self.parent().pygameWidget.actionStep = 0
             self.parent().pygameWidget.repaint()
 
         buttonAddVertexGraph = QPushButton("Add vertex")
@@ -22,6 +24,8 @@ class ActionWidget(QtWidgets.QWidget):
 
         def addEdgeGraph():
             self.parent().pygameWidget.action = "addEdge"
+            self.parent().pygameWidget.actionParams = []
+            self.parent().pygameWidget.actionStep = 0
             self.parent().pygameWidget.repaint()
 
         buttonAddEdgeGraph = QPushButton("Add edge")
@@ -31,6 +35,8 @@ class ActionWidget(QtWidgets.QWidget):
 
         def delVertexGraph():
             self.parent().pygameWidget.action = "delVertex"
+            self.parent().pygameWidget.actionParams = []
+            self.parent().pygameWidget.actionStep = 0
             self.parent().pygameWidget.repaint()
 
         buttonDelVertexGraph = QPushButton("Delete vertex")
@@ -40,6 +46,8 @@ class ActionWidget(QtWidgets.QWidget):
 
         def delEdgeGraph():
             self.parent().pygameWidget.action = "delEdge"
+            self.parent().pygameWidget.actionParams = []
+            self.parent().pygameWidget.actionStep = 0
             self.parent().pygameWidget.repaint()
 
         buttonDelEdgeGraph = QPushButton("Delete edge")

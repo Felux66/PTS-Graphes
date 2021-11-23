@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import *
 
 from consts import *
 from graph import generate_random_graph, graph_is_oriented, graph_is_valid
-from gui import ColoringAlgo
+from ColoringAlgos import ColoringAlgos
 from options import Options
 
 class FormWidget(QtWidgets.QWidget):   
@@ -117,7 +117,7 @@ class FormWidget(QtWidgets.QWidget):
         graphLayout.addRow("Max edge amount: ", maxEdgeEdit)
         graphLayout.addWidget(buttonRandomGraph)
         self.graphGroup.setLayout(graphLayout)
-        self.graphGroup.setFixedSize(self.graphGroup.sizeHint())
+        self.graphGroup.setFixedHeight(self.graphGroup.sizeHint().height())
 
         #######################################
 
@@ -131,13 +131,15 @@ class FormWidget(QtWidgets.QWidget):
         #######################################
 
         self.comboAlgos = QComboBox()
-        for algo in ColoringAlgo.algos:
+        for algo in ColoringAlgos.algos:
             self.comboAlgos.addItem(algo)
 
         self.comboWidget = QWidget()
         fLay = QFormLayout()
         fLay.addRow("Add: ", self.comboAlgos)
         self.comboWidget.setLayout(fLay)
+        self.comboWidget.setFixedHeight(self.comboWidget.sizeHint().height())
+        self.comboWidget.setFixedWidth(self.comboWidget.sizeHint().width()+20)
 
         def recolorGraph():            
             graph = self.parent().graph.graph
@@ -147,7 +149,7 @@ class FormWidget(QtWidgets.QWidget):
                 return
 
             self.parent().graph.reset_colors()
-            ColoringAlgo.algos[self.comboAlgos.currentText()](self.parent().graph)
+            ColoringAlgos.algos[self.comboAlgos.currentText()](self.parent().graph)
 
             self.parent().pygameWidget.repaint()
 
