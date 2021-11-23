@@ -84,7 +84,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.setCentralWidget(self.mainWidget)
 
-
 pygame.init()
 my_surface=pygame.Surface((WIDTH, HEIGHT))
 my_surface.fill((200,0,0))

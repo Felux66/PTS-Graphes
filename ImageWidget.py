@@ -40,6 +40,12 @@ class ImageWidget(QtWidgets.QWidget):
             text = font.render(str(vertex), True, (255,255,255))
             text_rect = text.get_rect(center=vertex.pos)
             self.surface.blit(text, text_rect)
+    
+        if self.action:
+            font = pygame.font.Font(None, 34)
+            text = font.render(self.action+" (step "+str(self.actionStep)+")", True, (255,0,0,155))
+            text_rect = text.get_rect()
+            self.surface.blit(text, (10,10))
         
         w=self.surface.get_width()
         h=self.surface.get_height()
