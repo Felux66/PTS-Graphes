@@ -69,6 +69,7 @@ class MainWidget(QWidget):
                     points[vertex] = None
                     placing = False
                     break
+                
             if placing:
                 points[vertex] = p
 

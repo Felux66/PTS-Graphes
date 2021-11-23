@@ -4,8 +4,8 @@ from PyQt5 import QtCore
 from PyQt5.QtWidgets import *
 
 from consts import *
-from graph import generate_random_graph, graph_is_oriented, graph_is_valid
-from ColoringAlgos import ColoringAlgos
+from graph import generate_random_graph, get_chords_from_cycle, graph_is_oriented, graph_is_valid, get_cycles
+from ColoringAlgos import ALGO_FCTS, ColoringAlgos, VerifAlgos
 from options import Options
 
 class FormWidget(QtWidgets.QWidget):   
@@ -69,30 +69,21 @@ class FormWidget(QtWidgets.QWidget):
         maxEdgeEdit = QSpinBox()
         maxEdgeEdit.setAlignment(QtCore.Qt.AlignRight)
         maxEdgeEdit.setValue(Options.NEIGHBORS_INTERVAL[1])
-        maxEdgeEdit.setMinimum(Options.NEIGHBORS_INTERVAL[0])
+        maxEdgeEdit.setMinimum(2)
         maxEdgeEdit.setMaximum(Options.NEIGHBORS_INTERVAL[1])
 
         def changeDistance():
-            try:
-                Options.N_VERTICES_RANDGRAPH = int(nverticesEdit.value())
-            except:
-                Options.N_VERTICES_RANDGRAPH = DEFAULT_N_VERTICES_RANDGRAPH   
-            maxEdgeEdit.setMaximum(Options.N_VERTICES_RANDGRAPH)   
+            Options.N_VERTICES_RANDGRAPH = nverticesEdit.value()
             if maxEdgeEdit.value() >= nverticesEdit.value():
                 maxEdgeEdit.setValue(nverticesEdit.value()-1) 
         
         def changeMinEdge():
-            try:
-                Options.NEIGHBORS_INTERVAL[0] = int(minEdgeEdit.value())
-            except:
-                Options.NEIGHBORS_INTERVAL[0] = DEFAULT_NEIGHBORS_INTERVAL[0]
+            Options.NEIGHBORS_INTERVAL[0] = minEdgeEdit.value()
+            print(Options.NEIGHBORS_INTERVAL[0])
             maxEdgeEdit.setMinimum(Options.NEIGHBORS_INTERVAL[0])
         
         def changeMaxEdge():
-            try:
-                Options.NEIGHBORS_INTERVAL[1] = int(maxEdgeEdit.value())
-            except:
-                Options.NEIGHBORS_INTERVAL[1] = DEFAULT_NEIGHBORS_INTERVAL[1]
+            Options.NEIGHBORS_INTERVAL[1] = maxEdgeEdit.value()
             minEdgeEdit.setMaximum(Options.NEIGHBORS_INTERVAL[1])     
         
         nverticesEdit.valueChanged.connect(changeDistance)   
@@ -102,7 +93,7 @@ class FormWidget(QtWidgets.QWidget):
             ########
 
         def randomGraph():
-            self.parent().initialGraph = generate_random_graph(Options.N_VERTICES_RANDGRAPH)
+            self.parent().initialGraph = generate_random_graph(Options.N_VERTICES_RANDGRAPH, Options.NEIGHBORS_INTERVAL[0], Options.NEIGHBORS_INTERVAL[1])
             self.parent().graph = self.parent().init_graph()
             self.parent().pygameWidget.repaint()
 
@@ -131,7 +122,7 @@ class FormWidget(QtWidgets.QWidget):
         #######################################
 
         self.comboAlgos = QComboBox()
-        for algo in ColoringAlgos.algos:
+        for algo in ALGO_FCTS:
             self.comboAlgos.addItem(algo)
 
         self.comboWidget = QWidget()
@@ -148,13 +139,27 @@ class FormWidget(QtWidgets.QWidget):
                 print("Not valid")
                 return
 
+            if not eval("VerifAlgos."+ALGO_FCTS[self.comboAlgos.currentText()])(self.parent().graph.graph):
+                print("NE PEUT PAS ETRE COLORIE AVEC")
+                return
+
             self.parent().graph.reset_colors()
-            ColoringAlgos.algos[self.comboAlgos.currentText()](self.parent().graph)
+            eval("ColoringAlgos."+ALGO_FCTS[self.comboAlgos.currentText()])(self.parent().graph)
 
             self.parent().pygameWidget.repaint()
 
         self.buttonColor = QPushButton("Recolor")
         self.buttonColor.clicked.connect(recolorGraph)
+
+        #######################################
+
+        def getCyclesGraph():
+            cycles = get_cycles(self.parent().graph.graph)
+            for cycle in cycles:
+                get_chords_from_cycle(self.parent().graph.graph, cycle)
+
+        self.buttonCycles = QPushButton("Get cycles")
+        self.buttonCycles.clicked.connect(getCyclesGraph)
 
         #######################################
 
@@ -165,6 +170,7 @@ class FormWidget(QtWidgets.QWidget):
         glay.addWidget(self.comboWidget, 1, 0, 1, 3)
         glay.addWidget(self.buttonColor, 1, 3)
         glay.addWidget(self.buttonRedraw, 2, 3)
+        glay.addWidget(self.buttonCycles, 2, 1)
         
         glay.addWidget(self.graphGroup, 3, 0, 1, 4)
         

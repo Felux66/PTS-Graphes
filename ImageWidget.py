@@ -120,7 +120,8 @@ class ImageWidget(QtWidgets.QWidget):
 
                             edge = tuple(sorted([v1, v2]))
                             self.parent().graph.edges.add(edge)
-                    self.parent().graph.graph = self.parent().graph.set_graph()
+                
+                self.parent().graph.graph = self.parent().graph.set_graph()
 
                 
             elif self.actionStep == 1:

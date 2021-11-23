@@ -1,5 +1,6 @@
 import random
 from consts import *
+from graph import *
 from pysat.solvers import Minisat22
 
 """
@@ -28,11 +29,20 @@ ASTUCES POUR IMPLEMENTER UN NOUVEL ALGO:
     peut-être un peu plus complexe si vous n'êtes pas à l'aise avec le code
 
 
-PENSEZ A AJOUTER VOTRE ALGO DANS LE DICTIONNAIRE algos A LA FIN DU CODE AVEC:
+PENSEZ A AJOUTER VOTRE ALGO DANS LE DICTIONNAIRE algos A LA FIN DE LA CLASSE AVEC:
     key: le nom de l'algo qui va apparaître dans l'interface
     value: la méthode principale qui sera appelée pour lancer l'algo
 
+IL FAUT AJOUTER UNE METHODE DANS LA CLASSE VerifAlgos AVEC LE MEME NOM QUE DANS ColoringAlgo QUI VERIFIE
+SI LE GRAPH PEUT OU NON ETRE COLORIE VIA CET ALGORITHME (retourne donc un booléen)
+
 """
+
+ALGO_FCTS = {
+    "COLOR": "color",
+    "SAT": "sat",
+    "COSINE": "cosine",
+}
 
 class ColoringAlgos:
 
@@ -131,7 +141,28 @@ class ColoringAlgos:
     ##############################
     ##############################
 
-    algos = {
-        "COLOR": color,
-        "SAT": sat,
-    }
+    def cosine(graph):
+        pass
+
+    ##############################
+    ##############################
+    ##############################
+
+class VerifAlgos:
+
+    def cosine(graph):
+
+        cycles = get_cycles(graph)
+        for cycle in cycles:
+            n = len(cycle)
+            if n >= 5 and n%2 != 0:
+                chords = get_chords_from_cycle(graph, cycle)
+                if len(chords) > 2:
+                    return False
+        return True
+
+    def sat(graph):
+        return True
+
+    def color(graph):
+        return True
