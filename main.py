@@ -11,7 +11,7 @@ from graph import generate_random_graph
 import random
 from math import hypot
 from consts import *
-from Gui import GraphGUI, VertexGUI
+from gui import GraphGUI, VertexGUI
 from options import Options
 from ImageWidget import ImageWidget
 from FormWidget import FormWidget

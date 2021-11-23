@@ -153,16 +153,6 @@ class FormWidget(QtWidgets.QWidget):
 
         #######################################
 
-        def getCyclesGraph():
-            cycles = get_cycles(self.parent().graph.graph)
-            for cycle in cycles:
-                get_chords_from_cycle(self.parent().graph.graph, cycle)
-
-        self.buttonCycles = QPushButton("Get cycles")
-        self.buttonCycles.clicked.connect(getCyclesGraph)
-
-        #######################################
-
         glay = QGridLayout()
 
         glay.addWidget(self.optionsGroup, 0, 0, 1, 4)
@@ -170,7 +160,6 @@ class FormWidget(QtWidgets.QWidget):
         glay.addWidget(self.comboWidget, 1, 0, 1, 3)
         glay.addWidget(self.buttonColor, 1, 3)
         glay.addWidget(self.buttonRedraw, 2, 3)
-        glay.addWidget(self.buttonCycles, 2, 1)
         
         glay.addWidget(self.graphGroup, 3, 0, 1, 4)
         

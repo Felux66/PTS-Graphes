@@ -99,7 +99,7 @@ class ColoringAlgos:
                         #print(x, " "*(p+1), "-> ", y)
                         for vertex in graphe.vertices:
                             if vertex == x:
-                                print(x,' -> ',y)
+                                #print(x,' -> ',y)
                                 vertex.color = y   
 
         global_sat(graph)
@@ -142,7 +142,25 @@ class ColoringAlgos:
     ##############################
 
     def cosine(graph):
-        pass
+
+        noColorVertices = [vertex for vertex in graph.graph]
+        colorIdx = 0
+        while len(noColorVertices) != 0:
+            noNeighborC = [vertex for vertex in noColorVertices if all(neighbor.color != COLORS_ORDER[colorIdx] for neighbor in graph.graph[vertex])]
+
+            if len(noNeighborC) == 0:
+                colorIdx += 1
+
+            A = [vertex for vertex in noColorVertices if any(neighbor.color == COLORS_ORDER[colorIdx] for neighbor in graph.graph[vertex])]
+
+            nbNeighborsInA = {vertex: len([neighbor for neighbor in graph.graph[vertex] if neighbor in A]) for vertex in noNeighborC}
+            maxVertex = noColorVertices[0] if len(A) == 0 else max(nbNeighborsInA, key=nbNeighborsInA.get)
+
+            maxVertex.color = COLORS_ORDER[colorIdx]
+
+            noColorVertices = [vertex for vertex in graph.graph if vertex.color == NONE_COLOR]
+
+
 
     ##############################
     ##############################
