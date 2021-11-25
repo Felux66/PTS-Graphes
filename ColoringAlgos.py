@@ -3,6 +3,8 @@ from consts import *
 from graph import *
 from pysat.solvers import Minisat22
 
+from gui import GraphGUI
+
 """
 
 ASTUCES POUR IMPLEMENTER UN NOUVEL ALGO:
@@ -45,8 +47,26 @@ ALGO_FCTS = {
 }
 
 class ColoringAlgos:
+    
+    coloredLimit = 0
 
-    def sat(graph):
+    def verification(function):
+        def other(graph):
+            assert isinstance(graph, GraphGUI), "GraphGUI required, "+type(graph).__name__+" found"
+
+            if not (graph_is_valid(graph.graph) and not graph_is_oriented(graph.graph)):
+                print("Not valid")
+                return
+
+            algo = function.__name__
+            if eval("VerifAlgos."+algo)(graph.graph):
+                function(graph)
+            else:
+                print("NE PEUT PAS ETRE COLORIE AVEC")
+        return other
+    
+    @verification
+    def sat(graphGui):
         
         #fonction qui a un sommet e et à une couleur c associe un nombre
         def encode(e,c,x,y):
@@ -63,14 +83,13 @@ class ColoringAlgos:
             ne = len(e)
             return (e[m % ne], c[m//ne])
 
-        def global_sat(graphe):
-
+        def global_sat(graph):            
             c = COLORS_ORDER # ['red','blue','green','yellow','orange','purple','pink','white','black','brown','cyan']
             e=[]
-            for s in graphe.graph.keys():
+            for s in graph.keys():
                 e.append(s)
             l = []
-            for init,vois in graphe.graph.items():
+            for init,vois in graph.items():
                 for vois_courant in vois:
                     l.append((init,vois_courant))
 
@@ -94,77 +113,81 @@ class ColoringAlgos:
                     model = [decode(e,c,v) for v in m.get_model() if v > 0] # on récupère lesvariables qui sont vraies dans la solution trouvée
                     # On affiche le résultat lisiblement
                     #l = max([len(s) for s in e])
+                    coloredVertices=0
                     for (x,y) in model:
                         #p = l - len(x)
                         #print(x, " "*(p+1), "-> ", y)
-                        for vertex in graphe.vertices:
+                        for vertex in graph.keys():
                             if vertex == x:
                                 #print(x,' -> ',y)
-                                vertex.color = y   
+                                if coloredVertices >= ColoringAlgos.coloredLimit:
+                                    return
 
-        global_sat(graph)
+                                vertex.color = y  
+                                coloredVertices += 1
+
+        global_sat(graphGui.graph)
 
     ##############################
     ##############################
     ##############################
 
-    def color(graph, current=None, visited=None):
-        if visited == None:
-            visited = []
+    @verification
+    def color(graphGui):
+        def rec_color(graph, current=None, visited=[]):                
+            if len(visited) >= ColoringAlgos.coloredLimit:
+                return
+
+            if current == None:
+                current = list(set(graph.keys())-set(visited))[0]
             
-        if len(visited) == len(graph.vertices):
-            return
-
-        def set_color(vertex):
             for color in COLORS_ORDER:
-                if color not in [neighbor.color for neighbor in graph.graph[vertex]]:
+                if color not in [neighbor.color for neighbor in graph[current]]:
                     current.color = color
                     break
 
-        if current == None:
-            current = random.choice(list(set(graph.vertices)-set(visited)))
-        
-        set_color(current)
+            visited.append(current)
 
-        visited.append(current)
+            for neighbor in graph[current]:
+                if neighbor.color == NONE_COLOR:
+                    rec_color(graph, neighbor, visited)
 
-        hasNone = False
-        for neighbor in graph.graph[current]:
-            if neighbor.color == NONE_COLOR:
-                hasNone = True
-                ColoringAlgos.color(graph,neighbor,visited)
-        
-        if not hasNone:
-            ColoringAlgos.color(graph,None,visited)
+        rec_color(graphGui.graph)
 
     ##############################
     ##############################
     ##############################
 
-    def cosine(graph):
+    @verification
+    def cosine(graphGui):
+        def global_cosine(graph):
+            coloredVertices = 0
+            noColorVertices = [vertex for vertex in graph]
+            colorIdx = 0
+            while len(noColorVertices) != 0:
+                if coloredVertices >= ColoringAlgos.coloredLimit:
+                    return
 
-        noColorVertices = [vertex for vertex in graph.graph]
-        colorIdx = 0
-        while len(noColorVertices) != 0:
-            noNeighborC = [vertex for vertex in noColorVertices if all(neighbor.color != COLORS_ORDER[colorIdx] for neighbor in graph.graph[vertex])]
+                noNeighborC = [vertex for vertex in noColorVertices if all(neighbor.color != COLORS_ORDER[colorIdx] for neighbor in graph[vertex])]
 
-            if len(noNeighborC) == 0:
-                colorIdx += 1
+                if len(noNeighborC) == 0:
+                    colorIdx += 1
 
-            A = [vertex for vertex in noColorVertices if any(neighbor.color == COLORS_ORDER[colorIdx] for neighbor in graph.graph[vertex])]
+                A = [vertex for vertex in noColorVertices if any(neighbor.color == COLORS_ORDER[colorIdx] for neighbor in graph[vertex])]
 
-            nbNeighborsInA = {vertex: len([neighbor for neighbor in graph.graph[vertex] if neighbor in A]) for vertex in noNeighborC}
-            maxVertex = noColorVertices[0] if len(A) == 0 else max(nbNeighborsInA, key=nbNeighborsInA.get)
+                nbNeighborsInA = {vertex: len([neighbor for neighbor in graph[vertex] if neighbor in A]) for vertex in noNeighborC}
+                maxVertex = noColorVertices[0] if len(A) == 0 else max(nbNeighborsInA, key=nbNeighborsInA.get)
 
-            maxVertex.color = COLORS_ORDER[colorIdx]
+                maxVertex.color = COLORS_ORDER[colorIdx]
+                coloredVertices += 1
 
-            noColorVertices = [vertex for vertex in graph.graph if vertex.color == NONE_COLOR]
+                noColorVertices = [vertex for vertex in graph if vertex.color == NONE_COLOR]
 
-
+        global_cosine(graphGui.graph)
 
     ##############################
-    ##############################
-    ##############################
+    ############################## 
+    ############################## 
 
 class VerifAlgos:
 

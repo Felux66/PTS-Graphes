@@ -55,7 +55,7 @@ def global_sat(graphe):
                 print(x,' -> ',y)
 
 print('{')
-for i in (g := graph.generate_random_graph(20, maxNei=8)):
+for i in (g := graph.generate_random_graph("NEIGHBORS_AMOUNT", 20, maxNei=8)):
     print(f"    {i}: {g[i]}")
 print('}')
 global_sat(g)

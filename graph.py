@@ -1,4 +1,5 @@
 import random
+from matplotlib import is_interactive
 
 from pygame.version import ver
 from options import Options
@@ -17,7 +18,8 @@ def graph_is_valid(graph):
         
         return visited
 
-    if any(vertex not in dfs(graph) for vertex in graph.keys()):
+    dfsResult = dfs(graph)
+    if any(vertex not in dfsResult for vertex in graph.keys()):
         return False
 
     # Get all neighbors to avoid a missing vertex
@@ -77,49 +79,99 @@ def get_chords_from_cycle(graph, cycle):
                 if neighbor not in [cycle[(cIdx+1)%len(cycle)], cycle[cIdx-1]]:
                     chords.add(tuple(sorted([vertex, neighbor])))  
     return chords
+
     
-def generate_random_graph(n=Options.N_VERTICES_RANDGRAPH, minNei=Options.NEIGHBORS_INTERVAL[0], maxNei=Options.NEIGHBORS_INTERVAL[1]):
-    assert n >= 2, "n has to be at least 2"
+def graph_is_barpartite(graph):
+    current, other = set(), set()
 
-    graph = {k: [] for k in range(n)}
+    pile = set()
+    pile.add(list(graph.keys())[0])
+    visited = []
+    while len(pile) != 0:
+        newPile = set()
+        print(current, other, pile, visited)
+        for vertex in pile-(set(visited)):
+            current.update(graph[vertex])
+            if any(v in other for v in graph[vertex]):
+                print(vertex, graph[vertex])
+                return False
+            newPile.update(graph[vertex])
+            visited.append(vertex)
 
-    adjacentMatrix = [[0 for i in range(n)] for j in range(n)]
+        pile = newPile.copy()
+        current, other = other.copy(), current.copy()
 
-    allVertices = []
-    for i in range(maxNei):
-        allVertices += list(range(n))
-    
-    i = 0
-    while i < len(allVertices):
-        if adjacentMatrix[allVertices[i]].count(1) >= maxNei:
-            i+=1
-            continue 
-        b = random.getrandbits(1) if adjacentMatrix[allVertices[i]].count(1) >= minNei else 1
-        if b:
-            idx = random.randint(0, len(allVertices)-1)
-            while allVertices[idx] == allVertices[i]:
+    return True
+
+def generate_random_graph(method, *args, **kwargs):
+    def generate_random_by_neighbors_amount(n=Options.N_VERTICES_RANDGRAPH, minNei=Options.NEIGHBORS_INTERVAL[0], maxNei=Options.NEIGHBORS_INTERVAL[1]):
+        assert n >= 2, "n has to be at least 2"
+
+        graph = {k: [] for k in range(n)}
+
+        adjacentMatrix = [[0 for i in range(n)] for j in range(n)]
+
+        allVertices = []
+        for i in range(maxNei):
+            allVertices += list(range(n))
+        
+        i = 0
+        while i < len(allVertices):
+            if adjacentMatrix[allVertices[i]].count(1) >= maxNei:
+                i+=1
+                continue 
+            b = random.getrandbits(1) if adjacentMatrix[allVertices[i]].count(1) >= minNei else 1
+            if b:
                 idx = random.randint(0, len(allVertices)-1)
-                if adjacentMatrix[allVertices[idx]].count(1) >= maxNei:
-                    idx = i
-            v1 = allVertices.pop(max(i,idx))
-            v2 = allVertices.pop(min(i,idx))
+                while allVertices[idx] == allVertices[i]:
+                    idx = random.randint(0, len(allVertices)-1)
+                    if adjacentMatrix[allVertices[idx]].count(1) >= maxNei:
+                        idx = i
+                v1 = allVertices.pop(max(i,idx))
+                v2 = allVertices.pop(min(i,idx))
 
-            adjacentMatrix[v1][v2] = b
-            adjacentMatrix[v2][v1] = b
+                adjacentMatrix[v1][v2] = b
+                adjacentMatrix[v2][v1] = b
 
-            i -= 1
-        i += 1
+                i -= 1
+            i += 1
 
-    for i in range(n):
-        graph[i] = [idx for idx in range(n) if adjacentMatrix[i][idx] == 1]
+        for i in range(n):
+            graph[i] = [idx for idx in range(n) if adjacentMatrix[i][idx] == 1]
 
-    return graph
+        return graph
+
+    def generate_random_by_random_delete_probability(n=Options.N_VERTICES_RANDGRAPH, p=Options.DELETE_PROBABILITY):
+        graph = {k: [] for k in range(n)}
+        adjacentMatrix = [[0 for i in range(n)] for j in range(n)]
+
+        for i in range(n):
+            for j in range(i,n):
+                if i != j:
+                    b = random.choices([0,1], [p, 1-p])[0]
+                    adjacentMatrix[i][j] = b
+                    adjacentMatrix[j][i] = b
+
+        for i in range(n):
+            graph[i] = [idx for idx in range(n) if adjacentMatrix[i][idx] == 1]
+
+        return graph
+        
+    graph = {0: [], 1:[]}
+    while not graph_is_valid(graph):
+        if method.upper() == "NEIGHBORS_AMOUNT":
+            graph = generate_random_by_neighbors_amount(*args, **kwargs)
+        elif method.upper() == "DELETE_PROBABILITY":
+            graph = generate_random_by_random_delete_probability(*args, **kwargs)
+        else:
+            graph = generate_random_by_neighbors_amount(*args)
+    return graph 
     
 if __name__ == '__main__':
 
     graph = {
-        'A': ['B', 'C', 'E'],
-        'B': ['A', 'D', 'F'],
+        'A': ['C', 'E',"B"],
+        'B': ['F'],
         'C': ['A', 'G'],
         'D': ['B'],
         'E': ['A', 'F'],
@@ -140,11 +192,31 @@ if __name__ == '__main__':
     edge: [(1,2), (2,1), (2,3), (3,2)]
 
     """
-
+    """
     print(graph_is_valid(graph))
     print(graph_is_oriented(graph))
 
     print('{')
-    for i in (g := generate_random_graph(10, maxNei=4)):
+    for i in (g := generate_random_graph("NEIGHBORS_AMOUNT", 10, maxNei=4)):
         print(f"    {i}: {g[i]}")
     print('}')
+
+    print('{')
+    for i in (g := generate_random_graph("DELETE_PROBABILITY", 10, maxNei=4)):
+        print(f"    {i}: {g[i]}")
+    print('}')
+    """
+
+    graph = {
+        'A': ['B', 'E', 'F', 'G'],
+        'B': ['A', 'F'],
+        'C': ['F', 'I'],
+        'D': ['E', 'H', 'J'],
+        'E': ['A', 'D'],
+        'F': ['A', 'B', 'C'],
+        'G': ['A']    ,
+        'H': ['D']    ,
+        'I': ['C']    ,
+        'J': ['D']    
+    }
+    print(graph_is_barpartite(graph))

@@ -23,7 +23,7 @@ class MainWidget(QWidget):
         super(MainWidget,self).__init__(parent)
         self.surface = surface
 
-        self.initialGraph = generate_random_graph()
+        self.initialGraph = generate_random_graph("NEIGHBORS_AMOUNT")
         self.graph = self.init_graph()
         
         self.pygameWidget = ImageWidget(self.surface, self)
@@ -90,6 +90,7 @@ my_surface=pygame.Surface((WIDTH, HEIGHT))
 my_surface.fill((200,0,0))
  
 app=QtWidgets.QApplication(sys.argv)
+app.setStyle('Fusion')
 my_window=MainWindow(my_surface)
 my_window.show()
 app.exec_()

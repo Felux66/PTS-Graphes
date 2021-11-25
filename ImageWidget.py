@@ -19,8 +19,7 @@ class ImageWidget(QtWidgets.QWidget):
         self.actionParams = []
         self.actionStep = 0
 
-    def paintEvent(self, event):
-        
+    def draw(self):
         self.surface.fill(NONE_COLOR)
         
         for edge in self.parent().graph.edges:
@@ -46,6 +45,9 @@ class ImageWidget(QtWidgets.QWidget):
             text = font.render(self.action+" (step "+str(self.actionStep)+")", True, (255,0,0,155))
             text_rect = text.get_rect()
             self.surface.blit(text, (10,10))
+
+    def paintEvent(self, event):
+        self.draw()
         
         w=self.surface.get_width()
         h=self.surface.get_height()
