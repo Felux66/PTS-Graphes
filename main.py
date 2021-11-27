@@ -1,11 +1,14 @@
 #Flix
 #Marianne
 
+import math
+from typing import OrderedDict
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 import pygame
 import sys
+import numpy as np
 
 from graph import generate_random_graph
 import random
@@ -44,12 +47,87 @@ class MainWidget(QWidget):
 
         return graph
 
-    def set_points(self, radius=Options.POINTS_DISTANCE):
+    def set_points(self):
         graph = self.initialGraph
+        radius=Options.POINTS_DISTANCE
 
-        w = self.surface.get_width()
-        h = self.surface.get_height()
+        n = len(graph.keys())
+        shift = 50
+        w = self.surface.get_width()-shift*2
+        h = self.surface.get_height()-shift*2
 
+        pointSpace = (w*h)/n
+        length = math.sqrt(pointSpace)
+        
+        points = {vertex: None for vertex in graph}
+
+        wn = math.ceil(w/length)
+        hn = math.ceil(n/wn)
+        
+        rand = Options.POINTS_DISTANCE_RANDOMNESS
+        k=0
+        for i in range(wn):
+            for j in range(hn):
+                x = (w-(wn-1)*length)/2+shift+i*length+((random.uniform(0,length)-length/2)*rand)
+                y = (h-(hn-1)*length)/2+shift+j*length+((random.uniform(0,length)-length/2)*rand)
+
+                try:
+                    vertex = list(graph.keys())[k]
+                    p = VertexGUI(x, y, vertex)
+                    points[vertex] = p
+                except:
+                    pass
+
+                k += 1
+
+        def ccw(A,B,C):
+            return (C.y-A.y) * (B.x-A.x) > (B.y-A.y) * (C.x-A.x)
+
+        def intersect(A,B,C,D):
+            return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
+
+        bestPos = [math.inf, {}]
+        lastPos = [math.inf, {}]
+        for p in range(Options.POINTS_POSITIONING_ITERATIONS):
+            edges = list(set([tuple(sorted([points[vertex], points[neighbor]])) for vertex in graph for neighbor in graph[vertex]]))
+            
+            intersections = {vertex: 0 for vertex in graph}
+            for i in range(len(edges)):
+                for j in range(i+1, len(edges)):
+                    A, B = edges[i][0], edges[i][1]
+                    C, D = edges[j][0], edges[j][1]
+                    if A not in [C, D] and B not in [C, D]:
+                        if intersect(A,B,C,D):
+                            intersections[int(A.name)] += 1
+                            intersections[int(B.name)] += 1
+                            intersections[int(C.name)] += 1
+                            intersections[int(D.name)] += 1
+            
+            curPos = [sum(intersections.values())/4, {vertex: points[vertex].pos for vertex in graph}]
+            
+            if lastPos[0] < curPos[0]:
+                curPos = lastPos
+            else:
+                lastPos = curPos
+            
+            if bestPos[0] > curPos[0] or bestPos[0] == -1:
+                bestPos = curPos
+
+            ordered = sorted(intersections, key=intersections.get, reverse=True)
+            if intersections[ordered[0]] == 0: return points
+            
+            fi, se= ordered[0], random.choice([v for v in ordered if intersections[v] != 0])
+            points[fi].pos, points[se].pos = points[se].pos, points[fi].pos
+
+            if bestPos[0] == 0:
+                break
+
+        for vertex, pos in bestPos[1].items():
+            points[vertex].pos = pos
+
+        return points
+
+        """
         points = {vertex: None for vertex in graph}
         while None in points.values():
             vertex = None
@@ -74,6 +152,7 @@ class MainWidget(QWidget):
                 points[vertex] = p
 
         return points
+        """
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self,surface,parent=None):

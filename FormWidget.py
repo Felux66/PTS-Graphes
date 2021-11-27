@@ -12,39 +12,61 @@ from options import Options
 
 class OptionsForm(QGroupBox):
 
-    def __init__(self, parent=None) -> None:
-        super(OptionsForm,self).__init__(parent)
+    def __init__(self, name, parent=None) -> None:
+        super(OptionsForm,self).__init__(name, parent)
 
-        radiusEdit = QSlider(QtCore.Qt.Horizontal)
-        radiusEdit.setValue(Options.POINTS_RADIUS)
-        radiusEdit.setMinimum(10)
-        radiusEdit.setMaximum(60)
+        self.radiusEdit = QSlider(QtCore.Qt.Horizontal)
+        self.randomnessEdit = QSlider(QtCore.Qt.Horizontal)
+        self.iterationsEdit = QSpinBox()
+
+        optionsLayout = QFormLayout()
+        optionsLayout.addRow(f"Vertex radius ({self.radiusEdit.value()}%)", self.radiusEdit)
+        optionsLayout.addRow(f"Positioning randomness ({int(Options.POINTS_DISTANCE_RANDOMNESS*100)}%)", self.randomnessEdit)
+        optionsLayout.addRow(f"Positioning iterations", self.iterationsEdit)
+
+        ########   
 
         def changeRadius():
             try:
-                Options.POINTS_RADIUS = int(radiusEdit.value())
+                Options.POINTS_RADIUS = int(self.radiusEdit.value())
             except:
                 Options.POINTS_RADIUS = DEFAULT_POINTS_RADIUS
-            self.parent().parent().pygameWidget.repaint()            
-        radiusEdit.valueChanged.connect(changeRadius)
+            self.parent().parent().pygameWidget.repaint()  
 
-        ########
-
-        distanceEdit = QSlider(QtCore.Qt.Horizontal)
-        distanceEdit.setValue(Options.POINTS_DISTANCE)
-        distanceEdit.setMinimum(10)
-        distanceEdit.setMaximum(200)
+        def changeIterations():
+            try:
+                Options.POINTS_POSITIONING_ITERATIONS = int(self.iterationsEdit.value())
+            except:
+                Options.POINTS_POSITIONING_ITERATIONS = DEFAULT_POINTS_POSITIONING_ITERATIONS
 
         def changeDistance():
             try:
-                Options.POINTS_DISTANCE = int(distanceEdit.value())
+                Options.POINTS_DISTANCE_RANDOMNESS = round(self.randomnessEdit.value()/200,2)
             except:
-                Options.POINTS_DISTANCE = DEFAULT_POINTS_DISTANCE        
-        distanceEdit.valueChanged.connect(changeDistance)
+                Options.POINTS_DISTANCE_RANDOMNESS = DEFAULT_POINTS_DISTANCE_RANDOMNESS   
+            optionsLayout.labelForField(self.randomnessEdit).setText(f"Positioning randomness ({int(Options.POINTS_DISTANCE_RANDOMNESS*100)}%)")   
 
-        optionsLayout = QFormLayout()
-        optionsLayout.addRow("Vertex radius", radiusEdit)
-        optionsLayout.addRow("Vertex distance", distanceEdit)
+        ########   
+               
+        self.radiusEdit.valueChanged.connect(changeRadius)
+        self.randomnessEdit.valueChanged.connect(changeDistance)
+        self.iterationsEdit.valueChanged.connect(changeIterations)
+
+        ########   
+        
+        self.randomnessEdit.setMinimum(0)
+        self.randomnessEdit.setMaximum(200)
+        self.randomnessEdit.setValue(Options.POINTS_DISTANCE_RANDOMNESS*200)
+        
+        self.iterationsEdit.setMinimum(0)
+        self.iterationsEdit.setMaximum(1000)
+        self.iterationsEdit.setValue(Options.POINTS_POSITIONING_ITERATIONS)
+
+        self.radiusEdit.setValue(Options.POINTS_RADIUS)
+        self.radiusEdit.setMinimum(10)
+        self.radiusEdit.setMaximum(60)
+
+        optionsLayout.labelForField(self.randomnessEdit).setFixedWidth(optionsLayout.labelForField(self.randomnessEdit).sizeHint().width()+5)
         self.setLayout(optionsLayout)
 
 class RandomizerForm(QTabWidget):
@@ -166,8 +188,8 @@ class FormWidget(QtWidgets.QWidget):
     
         #######################################
 
-        self.optionsGroup = OptionsForm("Options")
-        self.graphGroup = RandomizerForm()
+        self.optionsGroup = OptionsForm("Options", self)
+        self.graphGroup = RandomizerForm(self)
         self.comboAlgos = QComboBox()
         self.buttonColor = QPushButton("Recolor")
         self.buttonRedraw = QPushButton("Redraw")
@@ -258,7 +280,7 @@ class FormWidget(QtWidgets.QWidget):
         for algo in ALGO_FCTS:
             self.comboAlgos.addItem(algo)
         fLay = QFormLayout()
-        fLay.addRow("Add: ", self.comboAlgos)
+        fLay.addRow("Algorithmes:", self.comboAlgos)
         self.comboWidget.setLayout(fLay)
         self.comboWidget.setFixedHeight(self.comboWidget.sizeHint().height())
         self.comboWidget.setFixedWidth(self.comboWidget.sizeHint().width()+20)
