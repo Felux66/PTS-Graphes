@@ -3,6 +3,7 @@ from matplotlib import is_interactive
 
 from pygame.version import ver
 from options import Options
+import time
 
 def graph_is_valid(graph):
     assert isinstance(graph, dict), "graph sould be a dict"
@@ -158,7 +159,8 @@ def generate_random_graph(method, *args, **kwargs):
         return graph
         
     graph = {0: [], 1:[]}
-    while not graph_is_valid(graph):
+    t0 = time.time()
+    while not graph_is_valid(graph) and time.time()-t0 < 2000:
         if method.upper() == "NEIGHBORS_AMOUNT":
             graph = generate_random_by_neighbors_amount(*args, **kwargs)
         elif method.upper() == "DELETE_PROBABILITY":

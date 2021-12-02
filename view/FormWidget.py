@@ -101,7 +101,7 @@ class RandomizerForm(QTabWidget):
         self.probaEdit = QSlider(QtCore.Qt.Horizontal)
         self.probaEdit.setValue(Options.DELETE_PROBABILITY*100)
         self.probaEdit.setMinimum(0)
-        self.probaEdit.setMaximum(90)
+        self.probaEdit.setMaximum(100)
 
         self.buttonRandomGraphNei = QPushButton("New graph")
         self.buttonRandomGraphDel = QPushButton("New graph")

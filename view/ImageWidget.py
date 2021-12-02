@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import *
 import pygame
 
 from consts import *
-from gui import VertexGUI
+from view.gui import VertexGUI
 from options import Options
 
 class ImageWidget(QtWidgets.QWidget):   

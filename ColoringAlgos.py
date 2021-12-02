@@ -3,7 +3,7 @@ from consts import *
 from graph import *
 from pysat.solvers import Minisat22
 
-from gui import GraphGUI
+from view.gui import GraphGUI
 
 """
 
