@@ -36,7 +36,7 @@ class ImageWidget(QtWidgets.QWidget):
             pygame.draw.circle(self.surface, vertex.color, vertex.pos, Options.POINTS_RADIUS-2, 0)
 
             font = pygame.font.Font(None, int(Options.POINTS_RADIUS*1.5))
-            text = font.render(str(vertex), True, (255,255,255))
+            text = font.render(vertex.name, True, (255,255,255))
             text_rect = text.get_rect(center=vertex.pos)
             self.surface.blit(text, text_rect)
     

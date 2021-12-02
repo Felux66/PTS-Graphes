@@ -1,4 +1,5 @@
 from consts import *
+from graph import Vertex
 
 class GraphGUI():
     
@@ -27,8 +28,8 @@ class GraphGUI():
         
         for vertex, neighbors in graph.items():
             for neighbor in neighbors:
-                v1 = vertices[vertices.index(str(vertex))]
-                v2 = vertices[vertices.index(str(neighbor))]
+                v1 = vertices[vertices.index(vertex)]
+                v2 = vertices[vertices.index(neighbor)]
                 edge = tuple(sorted([v1, v2]))
                 edges.add(edge)
         
@@ -37,16 +38,20 @@ class GraphGUI():
     def __str__(self):
         return "Vertices: "+str(self.vertices)+"\nEdges: "+str(self.edges)
 
-
 ##################################
 
-class VertexGUI():
+class VertexGUI(Vertex):
     
-    def __init__(self, x, y, name=None, color=NONE_COLOR, border=(255,255,255)):
+    def __init__(self, x, y, id, value=None, name=None, color=NONE_COLOR, border=(255,255,255)):
+        super().__init__(self, id, value, name, color)
         self.x = x
         self.y = y
-        self.name = str(name)
-        self.color = color
+        self.border = border
+
+    def __init__(self, x, y, vertex, border=(255,255,255)):
+        super().__init__(vertex.id, vertex.value, vertex.name, vertex.color)
+        self.x = x
+        self.y = y
         self.border = border
     
     @property
@@ -55,21 +60,3 @@ class VertexGUI():
     @pos.setter
     def pos(self, pos):
         self.x, self.y = pos
-
-    def __lt__(self, other):
-        return self.name < other.name
-    def __eq__(self, other):
-        if isinstance(other, str):
-            return other==self.name
-        if isinstance(other, GraphGUI):
-            return other.name==self.name
-        if isinstance(other, VertexGUI):
-            return other.name==self.name
-        return False  
-    def __hash__(self):
-        return hash(str(self.name))
-
-    def __str__(self):
-        return str(self.name)
-    def __repr__(self):
-        return str(self)

@@ -4,10 +4,127 @@ from matplotlib import is_interactive
 from pygame.version import ver
 from options import Options
 import time
+from consts import *
+
+####################################
+####################################
+
+## CLASSES
+
+####################################
+####################################
+
+class VerticesList(set):
+
+    def __init__(self):
+        super().__init__(self)
+
+    def __getitem__(self, key):
+        for k in self:
+            if isinstance(key, Vertex):
+                if key.id == k.id:
+                    return k
+            else:
+                if key == k.id:
+                    return k
+    def add(self, value):
+        assert isinstance(value, Vertex), "Value should be of type Vertex, "+type(value).__name__+" found"
+        super().add(value)
+
+    def __str__(self):
+        return str(list(self))
+
+    def __repr__(self):
+        return str(self)
+
+####################################
+
+class EdgesSet(set):
+
+    def __init__(self):
+        super().__init__(self)
+
+    def add(self, edge):
+        assert len(edge) == 2, "The length of the edge should be 2, "+str(len(edge))+" found"
+        assert all(isinstance(vertex, Vertex) for vertex in edge), "Values should be of type Vertex, "+type(edge[0]).__name__+" and "+type(edge[1]).__name__+" found"
+
+        super().add(tuple(sorted(list(edge))))
+
+####################################
+
+class Graph(dict):
+    
+    def __init__(self, vertices=VerticesList(), edges=EdgesSet()):
+        super().__init__(self)
+
+        self.vertices = vertices
+        self.edges = edges
+
+    def add_vertex(self, vertex):
+        self[vertex] = VerticesList()
+        self.vertices.add(vertex)
+    def add_edge(self, edge):
+        assert all(vertex in self.vertices for vertex in edge), "One of the vertices of the edge is not set in the graph"
+
+        self[edge[0]].add(edge[1])
+        self[edge[1]].add(edge[0])
+        self.edges.add(edge)
+
+    def graph_from_dict(graph):
+        g = Graph()
+
+        for vertex in graph:
+            newV = Vertex(vertex)
+            g.add_vertex(newV)
+
+        for vertex in graph:
+            v = g.vertices[vertex]
+            for neighbor in graph[vertex]:
+                n = g.vertices[neighbor]
+                g.add_edge([v, n])
+
+        return g
+
+####################################
+
+class Vertex:
+    
+    def __init__(self, id, value=None, name=None, color=NONE_COLOR):
+        assert type(id) in (int, str), "Vertex.id should be int or string, "+type(id).__name__+" found"
+
+        self.id = id
+        self.name = str(name or id)
+        self.color = color
+        self.value = None
+
+    def __lt__(self, other):
+        if isinstance(other, Vertex):
+            return self.id < other.id
+        return False
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return other==self.id
+        if isinstance(other, Vertex):
+            return other.id==self.id
+        return False  
+
+    def __hash__(self):
+        return hash(self.id)
+
+    def __str__(self):
+        return 'V('+str(self.name)+')'
+    def __repr__(self):
+        return 'V('+str(self.name)+')'
+        
+####################################
+####################################
+
+## FUNCTIONS
+
+####################################
+####################################
 
 def graph_is_valid(graph):
-    assert isinstance(graph, dict), "graph sould be a dict"
-
     def dfs(graph, current=None, visited=[]):
         if current == None:
             current = random.choice(list(graph.keys()))
@@ -27,15 +144,17 @@ def graph_is_valid(graph):
     allNeighbors = set(vertex for neighbors in graph.values() for vertex in neighbors)    
     return all(neighbor in graph.keys() for neighbor in allNeighbors) and all(len(neighbors)>0 for neighbors in graph.values())
 
-def graph_is_oriented(graph):
-    assert isinstance(graph, dict), "graph sould be a dict"
+####################################
 
+def graph_is_oriented(graph):
     # Check if each vertex is a neighbor of its own neighbors
     for vertex, neighbors in graph.items():
         for neighbor in neighbors:
             if vertex not in graph[neighbor]:
                 return True
     return False
+
+####################################
 
 def get_cycles(graph):
     
@@ -71,6 +190,8 @@ def get_cycles(graph):
 
     return cycles
 
+####################################
+
 def get_chords_from_cycle(graph, cycle):
     chords = set()
     for vertex in cycle:
@@ -81,6 +202,7 @@ def get_chords_from_cycle(graph, cycle):
                     chords.add(tuple(sorted([vertex, neighbor])))  
     return chords
 
+####################################
     
 def graph_is_barpartite(graph):
     current, other = set(), set()
@@ -104,7 +226,9 @@ def graph_is_barpartite(graph):
 
     return True
 
-def generate_random_graph(method, *args, **kwargs):
+####################################
+
+def generate_random_graph(method="NEIGHBORS_AMOUNT", *args, **kwargs):
     def generate_random_by_neighbors_amount(n=Options.N_VERTICES_RANDGRAPH, minNei=Options.NEIGHBORS_INTERVAL[0], maxNei=Options.NEIGHBORS_INTERVAL[1]):
         assert n >= 2, "n has to be at least 2"
 
@@ -140,7 +264,7 @@ def generate_random_graph(method, *args, **kwargs):
         for i in range(n):
             graph[i] = [idx for idx in range(n) if adjacentMatrix[i][idx] == 1]
 
-        return graph
+        return Graph.graph_from_dict(graph)
 
     def generate_random_by_random_delete_probability(n=Options.N_VERTICES_RANDGRAPH, p=Options.DELETE_PROBABILITY):
         graph = {k: [] for k in range(n)}
@@ -156,7 +280,7 @@ def generate_random_graph(method, *args, **kwargs):
         for i in range(n):
             graph[i] = [idx for idx in range(n) if adjacentMatrix[i][idx] == 1]
 
-        return graph
+        return Graph.graph_from_dict(graph)
         
     graph = {0: [], 1:[]}
     t0 = time.time()
@@ -168,6 +292,8 @@ def generate_random_graph(method, *args, **kwargs):
         else:
             graph = generate_random_by_neighbors_amount(*args)
     return graph 
+
+####################################
     
 if __name__ == '__main__':
 
@@ -209,6 +335,7 @@ if __name__ == '__main__':
     print('}')
     """
 
+    """
     graph = {
         'A': ['B', 'E', 'F', 'G'],
         'B': ['A', 'F'],
@@ -222,3 +349,20 @@ if __name__ == '__main__':
         'J': ['D']    
     }
     print(graph_is_barpartite(graph))
+    """
+    
+    """
+    graph = Graph()
+    a = Vertex(1, name="a")
+    b = Vertex(2, name="b")
+    graph.add_vertex(a)
+    graph.add_vertex(b)
+
+    graph.add_edge([a,1])
+    print(graph)
+    """
+
+    g = generate_random_graph()
+    print(g.vertices)
+    print(g.edges)
+    print(g)

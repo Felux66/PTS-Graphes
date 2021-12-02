@@ -8,7 +8,7 @@ COLORS = dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS)
 COLORS_ORDER = ["midnightblue", "orchid", "indianred", "lightseagreen", "royalblue", "darkolivegreen", "purple", "orange", "goldenrod", "moccasin", "sandybrown", ]
 shuffle(COLORS_ORDER)
 
-NONE_COLOR = (50,50,50)
+NONE_COLOR = 'darkslategray'
 
 DEFAULT_POINTS_DISTANCE = 70
 DEFAULT_POINTS_DISTANCE_RANDOMNESS = 0.7

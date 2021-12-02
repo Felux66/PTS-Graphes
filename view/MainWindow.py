@@ -20,6 +20,7 @@ class MainWidget(QWidget):
         self.surface = surface
 
         self.initialGraph = generate_random_graph("NEIGHBORS_AMOUNT")
+        #self.initialGraph = sudoku_graph()
         self.graph = self.init_graph()
         
         self.pygameWidget = ImageWidget(self.surface, self)
@@ -42,7 +43,6 @@ class MainWidget(QWidget):
 
     def set_points(self):
         graph = self.initialGraph
-        radius=Options.POINTS_DISTANCE
 
         n = len(graph.keys())
         shift = 50
@@ -91,10 +91,10 @@ class MainWidget(QWidget):
                     C, D = edges[j][0], edges[j][1]
                     if A not in [C, D] and B not in [C, D]:
                         if intersect(A,B,C,D):
-                            intersections[int(A.name)] += 1
-                            intersections[int(B.name)] += 1
-                            intersections[int(C.name)] += 1
-                            intersections[int(D.name)] += 1
+                            intersections[A] += 1
+                            intersections[B] += 1
+                            intersections[C] += 1
+                            intersections[D] += 1
             
             curPos = [sum(intersections.values())/4, {vertex: points[vertex].pos for vertex in graph}]
             
