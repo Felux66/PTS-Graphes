@@ -52,7 +52,7 @@ class ColoringAlgos:
 
     def verification(function):
         def other(graph):
-            assert isinstance(graph, GraphGUI), "GraphGUI required, "+type(graph).__name__+" found"
+            assert isinstance(graph, Graph), "Graph required, "+type(graph).__name__+" found"
 
             if not (graph_is_valid(graph) and not graph_is_oriented(graph)):
                 print("Not valid")

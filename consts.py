@@ -4,8 +4,42 @@ from random import shuffle
 WIDTH, HEIGHT = 1000, 600
 
 COLORS = dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS)
+# print(COLORS)
 
-COLORS_ORDER = ["midnightblue", "orchid", "indianred", "lightseagreen", "royalblue", "darkolivegreen", "purple", "orange", "goldenrod", "moccasin", "sandybrown", ]
+COLORS_ORDER = [
+    "midnightblue", 
+    "orchid", 
+    "indianred", 
+    "lightseagreen", 
+    "royalblue", 
+    "darkolivegreen", 
+    "purple", 
+    "orange", 
+    "goldenrod", 
+    "moccasin", 
+    "sandybrown", 
+    "mediumaquamarine",
+    "dodgerblue",
+    "deeppink",
+    "forestgreen",
+    "gold",
+    "peachpuff",
+    "rebeccapurple",
+    "thistle",
+    "whitesmoke",
+    "navy",
+    "darkturquoise",
+    "cornsilk",
+    "mediumslateblue",
+    "navajowhite",
+    "tomato",
+    "cornflowerblue",
+    "chartreuse",
+    "darkcyan",
+    "seashell",
+    "wheat",
+    "yellowgreen",
+]
 shuffle(COLORS_ORDER)
 
 NONE_COLOR = 'darkslategray'

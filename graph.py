@@ -110,7 +110,7 @@ class Vertex:
         self.id = id
         self.name = str(name or id)
         self.color = color
-        self.value = None
+        self.value = value
 
     def __lt__(self, other):
         if isinstance(other, Vertex):
@@ -158,7 +158,7 @@ def graph_is_valid(graph):
     """
     # Get all neighbors to avoid a missing vertex
     allNeighbors = set(vertex for neighbors in graph.values() for vertex in neighbors)    
-    return all(neighbor in graph.keys() for neighbor in allNeighbors) and all(len(neighbors)>0 for neighbors in graph.values())
+    return all(neighbor in graph.keys() for neighbor in allNeighbors)
 
 ####################################
 

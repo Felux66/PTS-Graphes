@@ -13,6 +13,8 @@ from view.ImageWidget import ImageWidget
 from view.FormWidget import FormWidget
 from view.ActionWidget import ActionWidget
 
+import usages.schedule as schedule
+
 class MainWidget(QWidget):
 
     def __init__(self,surface,parent=None):
@@ -20,6 +22,7 @@ class MainWidget(QWidget):
         self.surface = surface
 
         g = generate_random_graph("NEIGHBORS_AMOUNT")
+        # g = schedule.generate_schedule_graph()
         self.graph = GraphGUI(g.vertices, g.edges)
         self.init_graph_points()
         
