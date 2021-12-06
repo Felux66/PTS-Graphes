@@ -54,19 +54,19 @@ class ColoringAlgos:
         def other(graph):
             assert isinstance(graph, GraphGUI), "GraphGUI required, "+type(graph).__name__+" found"
 
-            if not (graph_is_valid(graph.graph) and not graph_is_oriented(graph.graph)):
+            if not (graph_is_valid(graph) and not graph_is_oriented(graph)):
                 print("Not valid")
                 return
 
             algo = function.__name__
-            if eval("VerifAlgos."+algo)(graph.graph):
+            if eval("VerifAlgos."+algo)(graph):
                 function(graph)
             else:
                 print("NE PEUT PAS ETRE COLORIE AVEC")
         return other
     
     @verification
-    def sat(graphGui):
+    def sat(graph):
         
         #fonction qui a un sommet e et à une couleur c associe un nombre
         def encode(e,c,x,y):
@@ -126,40 +126,30 @@ class ColoringAlgos:
                                 vertex.color = y  
                                 coloredVertices += 1
 
-        global_sat(graphGui.graph)
+        global_sat(graph)
 
     ##############################
     ##############################
     ##############################
 
     @verification
-    def color(graphGui):
-        def rec_color(graph, current=None, visited=[]):                
-            if len(visited) >= ColoringAlgos.coloredLimit:
-                return
+    def color(graph):
+        def global_color(graph):
 
-            if current == None:
-                current = list(set(graph.keys())-set(visited))[0]
-            
-            for color in COLORS_ORDER:
-                if color not in [neighbor.color for neighbor in graph[current]]:
-                    current.color = color
-                    break
+            for vertex in graph.vertices:
+                for color in COLORS_ORDER:
+                    if color not in [neighbor.color for neighbor in graph[vertex]]:
+                        vertex.color = color
+                        break
 
-            visited.append(current)
-
-            for neighbor in graph[current]:
-                if neighbor.color == NONE_COLOR:
-                    rec_color(graph, neighbor, visited)
-
-        rec_color(graphGui.graph)
+        global_color(graph)
 
     ##############################
     ##############################
     ##############################
 
     @verification
-    def cosine(graphGui):
+    def cosine(graph):
         def global_cosine(graph):
             coloredVertices = 0
             noColorVertices = [vertex for vertex in graph]
@@ -183,7 +173,7 @@ class ColoringAlgos:
 
                 noColorVertices = [vertex for vertex in graph if vertex.color == NONE_COLOR]
 
-        global_cosine(graphGui.graph)
+        global_cosine(graph)
 
     ##############################
     ############################## 
