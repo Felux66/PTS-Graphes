@@ -77,9 +77,10 @@ class ImageWidget(QtWidgets.QWidget):
             x, y = pos.x(), pos.y() 
             
             newName = "0" if len(self.parent().graph.vertices)==0 else str(max([int(v.name) for v in self.parent().graph.vertices])+1)
-            newVertex = VertexGUI(x, y, id=newName)
+            newVertex = VertexGUI(x, y, newName)
             
-            self.parent().graph.add_vertex(newVertex)
+            self.parent().graph.vertices.append(newVertex)
+            self.parent().graph.graph = self.parent().graph.set_graph()
 
             modifiers = QApplication.keyboardModifiers()
             if not bool(modifiers == QtCore.Qt.ControlModifier):
@@ -119,7 +120,11 @@ class ImageWidget(QtWidgets.QWidget):
                             if v1 == v2:
                                 continue
 
-                            edge = self.parent().graph.add_edge([v1, v2])
+                            edge = tuple(sorted([v1, v2]))
+                            self.parent().graph.edges.add(edge)
+                
+                self.parent().graph.graph = self.parent().graph.set_graph()
+
                 
             elif self.actionStep == 1:
                 for v1 in self.actionParams:
@@ -128,7 +133,10 @@ class ImageWidget(QtWidgets.QWidget):
                     if v1 == v2:
                         continue
 
-                    edge = self.parent().graph.add_edge([v1, v2])
+                    edge = tuple(sorted([v1, v2]))
+                    self.parent().graph.edges.add(edge)
+                
+                self.parent().graph.graph = self.parent().graph.set_graph()
 
                 if not bool(modifiers == QtCore.Qt.ControlModifier):
                     self.action = None
@@ -151,8 +159,16 @@ class ImageWidget(QtWidgets.QWidget):
                 self.action = None
                 return
 
-            self.parent().graph.del_vertex(selVertex)
-            
+            self.parent().graph.vertices.remove(selVertex)
+            toRem = []
+            for edge in self.parent().graph.edges:
+                if selVertex in edge:
+                    toRem.append(edge)
+
+            for edge in toRem:
+                self.parent().graph.edges.remove(edge)
+            self.parent().graph.graph = self.parent().graph.set_graph()
+
             if not bool(modifiers == QtCore.Qt.ControlModifier):
                 self.action = None
                 self.actionParams = []
@@ -183,7 +199,9 @@ class ImageWidget(QtWidgets.QWidget):
                     v2 = selVertex
                     edge = tuple(sorted([v1, v2]))
                     if edge in self.parent().graph.edges:
-                        self.parent().graph.del_edge(edge)
+                        self.parent().graph.edges.remove(edge)
+                
+                self.parent().graph.graph = self.parent().graph.set_graph()
 
                 modifiers = QApplication.keyboardModifiers()
                 if not bool(modifiers == QtCore.Qt.ControlModifier):

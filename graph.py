@@ -57,13 +57,8 @@ class Graph(dict):
     def __init__(self, vertices=VerticesList(), edges=EdgesSet()):
         super().__init__(self)
 
-        self.vertices = VerticesList()
-        self.edges = EdgesSet()
-
-        for v in vertices:
-            self.add_vertex(v)
-        for e in edges:
-            self.add_edge(e)
+        self.vertices = vertices
+        self.edges = edges
 
     def add_vertex(self, vertex):
         self[vertex] = VerticesList()
@@ -74,16 +69,6 @@ class Graph(dict):
         self[edge[0]].add(edge[1])
         self[edge[1]].add(edge[0])
         self.edges.add(edge)
-
-    def del_vertex(self, vertex):
-        for edge in self.edges:
-            if vertex in edge:
-                self.del_edge(edge)
-        
-        self.vertices.remove(vertex)
-
-    def del_edge(self, edge):
-        self.edges.remove(edge)
 
     def graph_from_dict(graph):
         g = Graph()
@@ -110,7 +95,7 @@ class Vertex:
         self.id = id
         self.name = str(name or id)
         self.color = color
-        self.value = value
+        self.value = None
 
     def __lt__(self, other):
         if isinstance(other, Vertex):
@@ -139,8 +124,7 @@ class Vertex:
 ####################################
 ####################################
 
-def graph_is_valid(graph):  
-    """
+def graph_is_valid(graph):
     def dfs(graph, current=None, visited=[]):
         if current == None:
             current = random.choice(list(graph.keys()))
@@ -155,10 +139,10 @@ def graph_is_valid(graph):
     dfsResult = dfs(graph)
     if any(vertex not in dfsResult for vertex in graph.keys()):
         return False
-    """
+
     # Get all neighbors to avoid a missing vertex
     allNeighbors = set(vertex for neighbors in graph.values() for vertex in neighbors)    
-    return all(neighbor in graph.keys() for neighbor in allNeighbors)
+    return all(neighbor in graph.keys() for neighbor in allNeighbors) and all(len(neighbors)>0 for neighbors in graph.values())
 
 ####################################
 

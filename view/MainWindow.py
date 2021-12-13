@@ -1,7 +1,7 @@
 import math
 import random
 
-from graph import VerticesList, generate_random_graph
+from graph import generate_random_graph
 
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import *
@@ -13,18 +13,15 @@ from view.ImageWidget import ImageWidget
 from view.FormWidget import FormWidget
 from view.ActionWidget import ActionWidget
 
-import usages.schedule as schedule
-
 class MainWidget(QWidget):
 
     def __init__(self,surface,parent=None):
         super(MainWidget,self).__init__(parent)
         self.surface = surface
 
-        g = generate_random_graph("NEIGHBORS_AMOUNT")
-        # g = schedule.generate_schedule_graph()
-        self.graph = GraphGUI(g.vertices, g.edges)
-        self.init_graph_points()
+        self.initialGraph = generate_random_graph("NEIGHBORS_AMOUNT")
+        #self.initialGraph = sudoku_graph()
+        self.graph = self.init_graph()
         
         self.pygameWidget = ImageWidget(self.surface, self)
         self.formWidget = FormWidget(self)
@@ -39,11 +36,13 @@ class MainWidget(QWidget):
 
         self.setLayout(layout)
         
-    def init_graph_points(self):
-        self.graph = GraphGUI.generate(self.graph, self.set_points())
+    def init_graph(self):
+        graph = GraphGUI.generate(self.initialGraph, self.set_points())
+
+        return graph
 
     def set_points(self):
-        graph = self.graph
+        graph = self.initialGraph
 
         n = len(graph.keys())
         shift = 50
@@ -67,7 +66,7 @@ class MainWidget(QWidget):
 
                 try:
                     vertex = list(graph.keys())[k]
-                    p = VertexGUI(x, y, vertex=vertex)
+                    p = VertexGUI(x, y, vertex)
                     points[vertex] = p
                 except:
                     pass
@@ -118,10 +117,6 @@ class MainWidget(QWidget):
 
         for vertex, pos in bestPos[1].items():
             points[vertex].pos = pos
-
-        pointsV = VerticesList()
-        for p in points.values():
-            pointsV.add(p)
 
         return points
 

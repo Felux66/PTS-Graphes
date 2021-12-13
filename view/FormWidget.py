@@ -6,10 +6,9 @@ from PyQt5.QtWidgets import *
 from pygame import Color
 
 from consts import *
-from graph import generate_random_graph, graph_is_oriented, graph_is_valid
+from graph import generate_random_graph, get_chords_from_cycle, graph_is_oriented, graph_is_valid, get_cycles
 from ColoringAlgos import ALGO_FCTS, ColoringAlgos, VerifAlgos
 from options import Options
-from view.gui import GraphGUI
 
 class OptionsForm(QGroupBox):
 
@@ -79,13 +78,13 @@ class RandomizerForm(QTabWidget):
         self.nverticesNeiEdit.setAlignment(QtCore.Qt.AlignRight)
         self.nverticesNeiEdit.setValue(Options.N_VERTICES_RANDGRAPH)
         self.nverticesNeiEdit.setMinimum(4)
-        self.nverticesNeiEdit.setMaximum(100)
+        self.nverticesNeiEdit.setMaximum(50)
 
         self.nverticesDelEdit = QSpinBox()
         self.nverticesDelEdit.setAlignment(QtCore.Qt.AlignRight)
         self.nverticesDelEdit.setValue(Options.N_VERTICES_RANDGRAPH)
         self.nverticesDelEdit.setMinimum(4)
-        self.nverticesDelEdit.setMaximum(100)
+        self.nverticesDelEdit.setMaximum(50)
 
         self.minEdgeEdit = QSpinBox()
         self.minEdgeEdit.setAlignment(QtCore.Qt.AlignRight)
@@ -146,16 +145,14 @@ class RandomizerForm(QTabWidget):
 
         def randomGraphNei():
             ColoringAlgos.coloredLimit = 0
-            g = generate_random_graph("NEIGHBORS_AMOUNT")
-            self.parent().parent().graph = GraphGUI(g.vertices, g.edges)
-            self.parent().parent().init_graph_points()
+            self.parent().parent().initialGraph = generate_random_graph("NEIGHBORS_AMOUNT")
+            self.parent().parent().graph = self.parent().parent().init_graph()
             self.parent().parent().pygameWidget.repaint() 
 
         def randomGraphDel():
             ColoringAlgos.coloredLimit = 0
-            g = generate_random_graph("DELETE_PROBABILITY")
-            self.parent().parent().graph = GraphGUI(g.vertices, g.edges)
-            self.parent().parent().init_graph_points()
+            self.parent().parent().initialGraph = generate_random_graph("DELETE_PROBABILITY")
+            self.parent().parent().graph = self.parent().parent().init_graph()
             self.parent().parent().pygameWidget.repaint() 
 
         def changeProba():
@@ -202,7 +199,7 @@ class FormWidget(QtWidgets.QWidget):
         #######################################
 
         def redrawGraph():
-            self.parent().init_graph_points()
+            self.parent().graph = self.parent().init_graph()
             self.parent().pygameWidget.repaint()
 
             self.buttonPreviousStep.setEnabled(False)
@@ -228,13 +225,13 @@ class FormWidget(QtWidgets.QWidget):
             self.parent().pygameWidget.repaint()
 
         def nextStep():            
-            graph = self.parent().graph
+            graph = self.parent().graph.graph
 
             if not (graph_is_valid(graph) and not graph_is_oriented(graph)):
                 print("Not valid")
                 return
 
-            if not eval("VerifAlgos."+ALGO_FCTS[self.comboAlgos.currentText()])(self.parent().graph):
+            if not eval("VerifAlgos."+ALGO_FCTS[self.comboAlgos.currentText()])(self.parent().graph.graph):
                 print("NE PEUT PAS ETRE COLORIE AVEC")
                 return
 
@@ -251,7 +248,7 @@ class FormWidget(QtWidgets.QWidget):
             self.parent().pygameWidget.repaint()
 
         def previousStep():            
-            graph = self.parent().graph
+            graph = self.parent().graph.graph
 
             if not (graph_is_valid(graph) and not graph_is_oriented(graph)):
                 print("Not valid")
