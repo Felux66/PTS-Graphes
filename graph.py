@@ -231,7 +231,7 @@ def get_chords_from_cycle(graph, cycle):
 
 ####################################
     
-def graph_is_barpartite(graph):
+def graph_is_bipartite(graph):
     current, other = set(), set()
 
     pile = set()

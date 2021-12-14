@@ -298,4 +298,4 @@ class VerifAlgos:
     def dsatur(graph):
         return True
     def bipartite(graph):
-        return graph_is_barpartite(graph)
+        return graph_is_bipartite(graph)
