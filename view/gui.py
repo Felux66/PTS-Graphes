@@ -1,5 +1,6 @@
 from consts import *
 from graph import EdgesSet, Vertex, Graph, VerticesList
+import pickle
 
 class GraphGUI(Graph):
     
@@ -45,6 +46,12 @@ class GraphGUI(Graph):
 
     def __str__(self):
         return "Vertices: "+str(self.vertices)+"\nEdges: "+str(self.edges)
+
+    def save(self, filename):
+        pickle.dump(self, "saves/"+filename+".ggui", pickle.HIGHEST_PROTOCOL)
+
+    def load(filename):
+        return pickle.load("saves/"+filename+".ggui")
 
 ##################################
 

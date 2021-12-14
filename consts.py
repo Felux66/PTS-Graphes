@@ -21,7 +21,6 @@ COLORS_ORDER = [
     "mediumaquamarine",
     "dodgerblue",
     "deeppink",
-    "forestgreen",
     "gold",
     "peachpuff",
     "rebeccapurple",

@@ -9,7 +9,7 @@ class Group:
             self.students.append(students)
         
         elif type(students) in (list, set, tuple) and all(type(s) == int for s in students): 
-                self.students += students
+                self.students += list(students)
 
         else:
             print("Error, could not add students")

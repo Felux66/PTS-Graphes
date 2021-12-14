@@ -48,7 +48,7 @@ ALGO_FCTS = {
 
 class ColoringAlgos:
     
-    coloredLimit = 0
+    coloredLimit = 10000
 
     def verification(function):
         def other(graph):

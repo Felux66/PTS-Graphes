@@ -6,6 +6,8 @@ from options import Options
 import time
 from consts import *
 
+import pickle
+
 ####################################
 ####################################
 
@@ -99,6 +101,12 @@ class Graph(dict):
                 g.add_edge([v, n])
 
         return g
+
+    def save(self, filename):
+        pickle.dump(self, "saves/"+filename+".g", pickle.HIGHEST_PROTOCOL)
+
+    def load(filename):
+        return pickle.load("saves/"+filename+".g")
 
 ####################################
 
@@ -308,6 +316,8 @@ def generate_random_graph(method="NEIGHBORS_AMOUNT", *args, **kwargs):
         else:
             graph = generate_random_by_neighbors_amount(*args)
     return graph 
+
+
 
 ####################################
     
