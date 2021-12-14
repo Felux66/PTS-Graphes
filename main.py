@@ -27,6 +27,12 @@ def start_gui():
     my_window.show()
     app.exec_()
 
+def run_map():
+    import usages.world_map.world_map as wm
+
+    wm.load_us()
+    wm.load_fr()
+
 if __name__ == "__main__":
     start_gui()
         
