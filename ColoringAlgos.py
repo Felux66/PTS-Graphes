@@ -44,6 +44,7 @@ ALGO_FCTS = {
     "COLOR": "color",
     "SAT": "sat",
     "COSINE": "cosine",
+    "BIPARTITE" : "bipartite"
 }
 
 class ColoringAlgos:
@@ -250,6 +251,27 @@ class ColoringAlgos:
     ##############################
     ############################## 
     ############################## 
+    @verification
+    def bipartite(graph):
+        def global_bipartite() :
+            current, other = set(), set()
+            col1, col2 = COLORS_ORDER[0:2]
+            pile = set()
+            pile.add(list(graph.keys())[0])
+            visited = []
+            while len(pile) != 0:
+                newPile = set()
+                for vertex in pile-(set(visited)):
+                    current.update(graph[vertex])
+                    newPile.update(graph[vertex])
+                    visited.append(vertex)
+                    vertex.color=col1
+
+                pile = newPile.copy()
+                current, other = other.copy(), current.copy()
+                col1,col2 = col2,col1
+        global_bipartite(graph)
+
 
 class VerifAlgos:
 
@@ -272,3 +294,5 @@ class VerifAlgos:
     
     def dsatur(graph):
         return True
+    def bipartite(graph):
+        return graph_is_barpartite(graph)

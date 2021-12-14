@@ -9,7 +9,6 @@ from view.MainWindow import MainWindow
 from consts import *
 
 import matplotlib.pyplot as plt
-import seaborn as sns
 import plotly.subplots as ps
 import plotly.express as px
 import plotly.graph_objs as go
