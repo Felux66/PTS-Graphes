@@ -17,7 +17,7 @@ import json
 def load_us():
     vertices = VerticesList()
     edges = EdgesSet()
-    dfBorders = pd.read_csv("us-state-borders.csv")
+    dfBorders = pd.read_csv("usages/world_map/us_states/us-state-borders.csv")
     for idx, row in dfBorders.iterrows():
         st1, st2 = row["ST1ST2"].split("-")
         if st1 not in vertices:
@@ -29,9 +29,9 @@ def load_us():
 
     graph = Graph(vertices,edges)
     
-    dfBound = pd.read_csv("us-state-boundaries.csv", delimiter=";")
+    dfBound = pd.read_csv("usages/world_map/us_states/us-state-boundaries.csv", delimiter=";")
     geo = None
-    with open("us-geo.json", "r") as f:
+    with open("usages/world_map/us_states/us-geo.json", "r") as f:
         geo = json.load(f)
 
     dfColor = pd.DataFrame(columns=["stusab", "color"])
@@ -42,12 +42,23 @@ def load_us():
 
     dfBound = dfBound.merge(dfColor, how="inner", left_on="stusab", right_on="stusab")
     
-    return dfBound, geo
+    fig = px.choropleth_mapbox(dfBound, geojson=geo, color="color",
+                            locations="name", featureidkey="properties.name",
+                            center={"lat": 42.5517, "lon": -95.7073},
+                            mapbox_style="carto-positron", zoom=2.7, color_discrete_sequence=COLORS_ORDER)
+    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+    fig.update_layout(showlegend=False)
+
+    imageFilename = "usages/world_map/us_states/colored_us.png"
+
+    fig.write_image(imageFilename)
+
+    return graph, imageFilename
 
 def load_fr():
     vertices = VerticesList()
     edges = EdgesSet()
-    with open("departements_fr_boundaries.txt", "r") as f:
+    with open("usages/world_map/fr_departements/departements_fr_boundaries.txt", "r") as f:
         for line in f.readlines():
             row = line.strip().split(",")
             dept = row[0]
@@ -61,10 +72,9 @@ def load_fr():
                 edges.add((vertices[dept], vertices[vois]))
 
     graph = Graph(vertices,edges)
-    print(graph)
     
     geo = None
-    with open("fr-geo.json", "r") as f:
+    with open("usages/world_map/fr_departements/fr-geo.json", "r") as f:
         geo = json.load(f)
 
     dfColor = pd.DataFrame(columns=["stusab", "color"])
@@ -73,7 +83,18 @@ def load_fr():
     for vertex in graph.vertices:
         dfColor = dfColor.append(pd.Series([vertex.name, vertex.color], index = dfColor.columns), ignore_index=True)
 
-    return dfColor, geo
+    fig = px.choropleth_mapbox(dfColor, geojson=geo, color="color",
+                            locations="stusab", featureidkey="properties.code",
+                            center={"lat": 46.8517, "lon": 1.7073},
+                            mapbox_style="carto-positron", zoom=4.7, color_discrete_sequence=COLORS_ORDER)
+    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+    fig.update_layout(showlegend=False)
+
+    imageFilename = "usages/world_map/fr_departements/colored_fr.png"
+
+    fig.write_image(imageFilename)
+   
+    return graph, imageFilename
 
 """
 fig = px.choropleth_mapbox(dfBound, geojson=geo, color="color",

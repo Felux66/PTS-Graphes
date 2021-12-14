@@ -41,6 +41,7 @@ SI LE GRAPH PEUT OU NON ETRE COLORIE VIA CET ALGORITHME (retourne donc un boolé
 """
 
 ALGO_FCTS = {
+    "DSATUR": "dsatur",
     "COLOR": "color",
     "SAT": "sat",
     "COSINE": "cosine",
@@ -48,7 +49,7 @@ ALGO_FCTS = {
 
 class ColoringAlgos:
     
-    coloredLimit = 10000
+    coloredLimit = 0
 
     def verification(function):
         def other(graph):
@@ -186,7 +187,7 @@ class ColoringAlgos:
         
             dic={}
             for i in graph.vertices:
-                dic[i]=len(graph.graph[i])
+                dic[i]=len(graph[i])
             
             #the dictionary is sorted by value and exported as a list in descending order
             output=[i[0] for i in sorted(dic.items(), key=lambda x:x[1])]
@@ -196,6 +197,9 @@ class ColoringAlgos:
         
         def global_dsatur(graph):
             #Tri des sommets par leurs degré et on choisit le sommet avec le plus grand degré
+            colored = 0
+            if colored >= ColoringAlgos.coloredLimit:
+                return
             selected_vertex=sort_by_degree(graph)[0]
         
             #initialisation du degré de saturation
@@ -203,24 +207,25 @@ class ColoringAlgos:
         
      
             #La limite sup du nb chromatique est égale au degré maximal du sommet +1.
-            chromatic_number_upper_bound=range(len(graph.graph[selected_vertex])+1)
+            chromatic_number_upper_bound=range(len(graph[selected_vertex])+1)
         
             
             #On attribue la première couleur au sommet avec le degré maximum
             color_assignments={}
             color_assignments[selected_vertex]=0
             selected_vertex.color = COLORS_ORDER[0]
-            
+            colored += 1            
         
             #remplir chaque sommet avec une couleur
             while len(color_assignments)<len(graph.vertices):
-              
+                if colored >= ColoringAlgos.coloredLimit:
+                    return
            
                 #Suppression d'un sommet coloré 
                 saturation_degrees.pop(selected_vertex)
         
                #Mise à jour des degrés de saturation après l'attribution des couleurs
-                for node in graph.graph[selected_vertex]:
+                for node in graph[selected_vertex]:
                     if node in saturation_degrees:
                         saturation_degrees[node]+=1
         
@@ -229,21 +234,19 @@ class ColoringAlgos:
         
                 #En cas égalité, on choisit celui qui a le plus grand degré.
                 if len(check_vertices_degree)>1:
-                    degree_distribution=[len(graph.graph[node]) for node in check_vertices_degree]
+                    degree_distribution=[len(graph[node]) for node in check_vertices_degree]
                     selected_vertex=check_vertices_degree[degree_distribution.index(max(degree_distribution))]
                 else:
                     selected_vertex=check_vertices_degree[0]
         
                 #Exclusion des couleurs utilisées par les voisins et attribution de la couleur la plus faible possible au sommet sélectionné
-                excluded_colors=[color_assignments[node] for node in graph.graph[selected_vertex] if node in color_assignments]
+                excluded_colors=[color_assignments[node] for node in graph[selected_vertex] if node in color_assignments]
                 #print(excluded_colors)
                 #print(selected_vertex)
                 selected_color=[color for color in chromatic_number_upper_bound if color not in excluded_colors][0]
                 color_assignments[selected_vertex]=selected_color
                 selected_vertex.color = COLORS_ORDER[selected_color]
-                
-            print(color_assignments, graph.graph)
-        
+                colored += 1
         
         global_dsatur(graphGui)
 
