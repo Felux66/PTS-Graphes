@@ -26,17 +26,12 @@ def start_gui():
     my_window.show()
     app.exec_()
 
+def run_map():
+    import usages.world_map.world_map as wm
+
+    wm.load_us()
+    wm.load_fr()
+
 if __name__ == "__main__":
-    # start_gui()
-
-    import usages.world_map as wm
-    df, geo = wm.load_fr()
-
-    fig = px.choropleth_mapbox(df, geojson=geo, color="color",
-                            locations="stusab", featureidkey="properties.code",
-                            center={"lat": 42.5517, "lon": -97.7073},
-                            mapbox_style="carto-positron", zoom=4, color_discrete_sequence=COLORS_ORDER)
-    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
-    fig.write_image("fig1.png")
-    fig.show()
+    start_gui()
         

@@ -12,7 +12,9 @@ class ImageWidget(QtWidgets.QWidget):
         super(ImageWidget,self).__init__(parent)
         self.surface = surface
 
-        self.setFixedSize(surface.get_width(), surface.get_height())
+        self.image=QtGui.QImage("usages/world_map/fr_departements/colored_fr.png") 
+
+        self.setFixedSize(self.surface.get_width(), self.surface.get_height())
 
         self.selected = None
         self.action = None
@@ -53,6 +55,9 @@ class ImageWidget(QtWidgets.QWidget):
         h=self.surface.get_height()
         data=self.surface.get_buffer().raw
         self.image=QtGui.QImage(data,w,h,QtGui.QImage.Format_RGB32)
+        #self.image=QtGui.QImage("usages/world_map/fr_departements/colored_fr.png") 
+
+        self.setFixedSize(self.image.width(), self.image.height())
 
         my_paint=QtGui.QPainter()  
         my_paint.begin(self)

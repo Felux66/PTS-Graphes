@@ -164,6 +164,9 @@ def graph_is_valid(graph):
     if any(vertex not in dfsResult for vertex in graph.keys()):
         return False
     """
+    if graph is None:
+        return False
+        
     # Get all neighbors to avoid a missing vertex
     allNeighbors = set(vertex for neighbors in graph.values() for vertex in neighbors)    
     return all(neighbor in graph.keys() for neighbor in allNeighbors)
@@ -306,7 +309,7 @@ def generate_random_graph(method="NEIGHBORS_AMOUNT", *args, **kwargs):
 
         return Graph.graph_from_dict(graph)
         
-    graph = {0: [], 1:[]}
+    graph = None
     t0 = time.time()
     while not graph_is_valid(graph) and time.time()-t0 < 2000:
         if method.upper() == "NEIGHBORS_AMOUNT":
