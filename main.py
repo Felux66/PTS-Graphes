@@ -31,7 +31,12 @@ def run_map():
 
     wm.load_us()
     wm.load_fr()
+    
+def run_schedule():
+    import usages.schedule.schedule as sch
+
+    sch.main_schedule()
 
 if __name__ == "__main__":
-    start_gui()
+    run_schedule()
         

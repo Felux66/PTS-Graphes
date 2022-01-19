@@ -13,7 +13,7 @@ from view.ImageWidget import ImageWidget
 from view.FormWidget import FormWidget
 from view.ActionWidget import ActionWidget
 
-import usages.schedule as schedule
+import usages.schedule.schedule as schedule
 
 class MainWidget(QWidget):
 
