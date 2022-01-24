@@ -52,9 +52,9 @@ def generate_schedule_graph_from_subjects(subjects):
 def main_schedule():
     from ColoringAlgos import ColoringAlgos
     from consts import COLORS_ORDER  
-    import data_schedule
+    import schedule.data_schedule as dsh
 
-    g = generate_schedule_graph_from_subjects(data_schedule.school[1])
+    g = generate_schedule_graph_from_subjects(dsh.school[1])
     ColoringAlgos.sat(g)
 
     for c in COLORS_ORDER:
