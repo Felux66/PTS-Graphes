@@ -1,4 +1,6 @@
 import random
+
+from numpy import sort
 from consts import *
 from graph import *
 from pysat.solvers import Minisat22
@@ -45,7 +47,8 @@ ALGO_FCTS = {
     "COLOR": "color",
     "SAT": "sat",
     "COSINE": "cosine",
-    "BIPARTITE" : "bipartite"
+    "BIPARTITE" : "bipartite",
+    "WELSHPOWELL" : "welshpowell"
 }
 
 class ColoringAlgos:
@@ -274,7 +277,32 @@ class ColoringAlgos:
                 current, other = other.copy(), current.copy()
                 col1,col2 = col2,col1
         global_bipartite(graph)
+    
+    ##############################
+    ############################## 
+    ############################## 
+    @verification
+    def welshpowell (graph):
+        def sort_by_degree(graph):
+            dic={}
+            for i in graph.vertices:
+                dic[i]=len(graph[i])
+            #the dictionary is sorted by value and exported as a list in descending order
+            output=[i[0] for i in sorted(dic.items(), key=lambda x:x[1])]
+            return output[::-1]
 
+        def global_welshpowell():
+            color =0
+            colored = 0
+
+            degree_list = sort_by_degree(graph)
+            while colored < len(degree_list):
+                for i in range(len(degree_list)):
+                    if len(degree_list[i])==2:
+                        ColPoss=True
+                        for j in range(i):
+                            if len(degree_list[j])==3 and degree_list[j][2] ==color:
+                                pass
 
 class VerifAlgos:
 
