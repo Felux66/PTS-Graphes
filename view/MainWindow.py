@@ -21,9 +21,8 @@ class MainWidget(QWidget):
         super(MainWidget,self).__init__(parent)
         self.surface = surface
 
-        #g = generate_random_graph("NEIGHBORS_AMOUNT")
-        import usages.schedule.schedule as sch
-        g=sch.main_schedule()
+        g = generate_random_graph("NEIGHBORS_AMOUNT")
+
         self.graph = GraphGUI(g.vertices, g.edges)
         self.init_graph_points()
         

@@ -1,4 +1,5 @@
 import random
+from threading import currentThread
 
 from numpy import sort
 from consts import *
@@ -291,18 +292,30 @@ class ColoringAlgos:
             output=[i[0] for i in sorted(dic.items(), key=lambda x:x[1])]
             return output[::-1]
 
-        def global_welshpowell():
+        def global_welshpowell(graph):
             color =0
             colored = 0
 
-            degree_list = sort_by_degree(graph)
-            while colored < len(degree_list):
-                for i in range(len(degree_list)):
-                    if len(degree_list[i])==2:
-                        ColPoss=True
-                        for j in range(i):
-                            if len(degree_list[j])==3 and degree_list[j][2] ==color:
-                                pass
+            degreeList = sort_by_degree(graph)
+            while colored < len(degreeList):
+                coloredVertices =[]
+                nonColored = [v for v in degreeList if v.color ==NONE_COLOR]
+                try :
+                    currentVertice = nonColored[0]
+                except :
+                    break
+                currentVertice.color = COLORS_ORDER[color]
+                colored+=1
+                coloredVertices.append(currentVertice)
+                for v in nonColored :
+                    if(v!=currentVertice and all(v not in graph[v2] for v2 in coloredVertices)):
+                        v.color = COLORS_ORDER[color]
+                        colored+=1
+                        coloredVertices.append(v)
+                
+                color+=1
+
+        global_welshpowell(graph)
 
 class VerifAlgos:
 
@@ -325,5 +338,10 @@ class VerifAlgos:
     
     def dsatur(graph):
         return True
+
     def bipartite(graph):
         return graph_is_bipartite(graph)
+
+    def welshpowell(graph):
+        return True
+
