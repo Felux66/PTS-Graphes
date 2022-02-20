@@ -54,7 +54,7 @@ ALGO_FCTS = {
 
 class ColoringAlgos:
     
-    coloredLimit = 0
+    coloredLimit = 150
 
     def verification(function):
         def other(graph):
@@ -89,7 +89,7 @@ class ColoringAlgos:
             ne = len(e)
             return (e[m % ne], c[m//ne])
 
-        def global_sat(graph):            
+        def global_sat(graph):
             c = COLORS_ORDER # ['red','blue','green','yellow','orange','purple','pink','white','black','brown','cyan']
             e=[]
             for s in graph.keys():

@@ -38,5 +38,5 @@ def run_schedule():
     sch.main_schedule()
 
 if __name__ == "__main__":
-    start_gui()
-        
+    run_schedule()
+    # start_gui()
